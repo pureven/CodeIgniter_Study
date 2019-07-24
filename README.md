@@ -2,8 +2,8 @@
 
 ## 步骤
 
-### Step 1: Download CodeIgniter 3.1.10
+### [Download CodeIgniter 3.1.10](http://codeigniter.org.cn/)
 
-### Step 2: add HMVC modular-extensions
+### [add HMVC modular-extensions](https://bitbucket.org/wiredesignz/codeigniter-modular-extensions-hmvc/src/codeigniter-3.x/)
 
-
+### [add CodeIgniter-base-model](http://github.com/jamierumbelow/codeigniter-base-model)
