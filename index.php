@@ -53,6 +53,11 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
+
+/**
+ *  .env文件位于项目根目录下，作为全局环境配置文件，通过 .env文件 加载环境变量并且能够自动的通过 getenv(), $_ENV和 $_SERVER 自动调用,如：
+ *  文件内容：CI_ENV=production表示将运行环境设置为production
+ */
 	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
 
 /*
@@ -62,6 +67,10 @@
  *
  * Different environments will require different levels of error reporting.
  * By default development will show errors but testing and live will hide them.
+ */
+
+/**
+ * 根据当前运行环境设置(error_reporting)错误报告级别和是否将错误信息作为输出的一部分显示到屏幕，或者对用户隐藏而不显示(display_errors)
  */
 switch (ENVIRONMENT)
 {
@@ -88,6 +97,13 @@ switch (ENVIRONMENT)
 		echo 'The application environment is not set correctly.';
 		exit(1); // EXIT_ERROR
 }
+
+/**
+ *  定义应用、系统、视图的目录名,用于设置全局常量BASEPATH/APPPATH/VIEWPATH
+ * $system_path          为    BASEPATH
+ * $application_folder   为    APPPATH
+ * $view_folder          为   VIEWPATH
+ */
 
 /*
  *---------------------------------------------------------------
@@ -190,6 +206,12 @@ switch (ENVIRONMENT)
  * ---------------------------------------------------------------
  */
 
+/**
+ * defined()
+ * dirname()
+ * chdir()
+ * realpath()
+ */
 	// Set the current directory correctly for CLI requests
 	if (defined('STDIN'))
 	{
@@ -222,6 +244,9 @@ switch (ENVIRONMENT)
  * -------------------------------------------------------------------
  *  Now that we know the path, set the main path constants
  * -------------------------------------------------------------------
+ */
+/**
+ * 设置全局常量 SELF BASEPATH PCPATH SYSDIR APPPATH VIEWPATH
  */
 	// The name of THIS file
 	define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
@@ -305,6 +330,15 @@ switch (ENVIRONMENT)
 
 	define('VIEWPATH', $view_folder.DIRECTORY_SEPARATOR);
 
+	/*
+	var_dump(SELF,BASEPATH, FCPATH, SYSDIR, APPPATH, VIEWPATH);
+    G:\wamp\www\CodeIgniter_hmvc\index.php:332:string 'index.php' (length=9)
+    G:\wamp\www\CodeIgniter_hmvc\index.php:332:string 'G:\wamp\www\CodeIgniter_hmvc\system\' (length=36)
+    G:\wamp\www\CodeIgniter_hmvc\index.php:332:string 'G:\wamp\www\CodeIgniter_hmvc\' (length=29)
+    G:\wamp\www\CodeIgniter_hmvc\index.php:332:string 'system' (length=6)
+    G:\wamp\www\CodeIgniter_hmvc\index.php:332:string 'G:\wamp\www\CodeIgniter_hmvc\application\' (length=41)
+    G:\wamp\www\CodeIgniter_hmvc\index.php:332:string 'G:\wamp\www\CodeIgniter_hmvc\application\views\' (length=47)
+	*/
 /*
  * --------------------------------------------------------------------
  * LOAD THE BOOTSTRAP FILE

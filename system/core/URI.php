@@ -113,6 +113,10 @@ class CI_URI {
 			}
 			else
 			{
+                /**
+                 * 下面的uri_protocol是在config.php里面的一个配置项，其实是问你用哪种方式去检测uri的信息的意思，
+                 * 默认是AUTO，自动检测，也就是通过各种方式检测，直至检测到，或者全部方式都检测完。。
+                 */
 				$protocol = $this->config->item('uri_protocol');
 				empty($protocol) && $protocol = 'REQUEST_URI';
 
@@ -150,6 +154,7 @@ class CI_URI {
 	 */
 	protected function _set_uri_string($str)
 	{
+	    /* $str = 'tools/message/John%20Smith' */
 		// Filter out control characters and trim slashes
 		$this->uri_string = trim(remove_invisible_characters($str, FALSE), '/');
 
@@ -196,6 +201,11 @@ class CI_URI {
 	 */
 	protected function _parse_request_uri()
 	{
+        /**
+         *  http://localhost:58080/CodeIgniter_hmvc/index.php/tools/message/John%20Smith
+         * $_SERVER['REQUEST_URI']: /CodeIgniter_hmvc/index.php/tools/message/John%20Smith
+         * $_SERVER['SCRIPT_NAME']: /CodeIgniter_hmvc/index.php
+         */
 		if ( ! isset($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']))
 		{
 			return '';
@@ -203,12 +213,20 @@ class CI_URI {
 
 		// parse_url() returns false if no host is present, but the path or query string
 		// contains a colon followed by a number
+        /**
+         *  $uri = [
+         *      'scheme' => 'http',
+         *      'host' => 'dummy',
+         *      'path' => 'CodeIgniter_hmvc/index.php/tools/message/John%20Smith',
+         *  ]
+         */
 		$uri = parse_url('http://dummy'.$_SERVER['REQUEST_URI']);
 		$query = isset($uri['query']) ? $uri['query'] : '';
 		$uri = isset($uri['path']) ? $uri['path'] : '';
 
 		if (isset($_SERVER['SCRIPT_NAME'][0]))
 		{
+		    /* $uri = /tools/message/John%20Smith */
 			if (strpos($uri, $_SERVER['SCRIPT_NAME']) === 0)
 			{
 				$uri = (string) substr($uri, strlen($_SERVER['SCRIPT_NAME']));
@@ -221,6 +239,7 @@ class CI_URI {
 
 		// This section ensures that even on servers that require the URI to be in the query string (Nginx) a correct
 		// URI is found, and also fixes the QUERY_STRING server var and $_GET array.
+        /* 这个地方待确定*/
 		if (trim($uri, '/') === '' && strncmp($query, '/', 1) === 0)
 		{
 			$query = explode('?', $query, 2);
@@ -231,7 +250,7 @@ class CI_URI {
 		{
 			$_SERVER['QUERY_STRING'] = $query;
 		}
-
+		/* parse_str: 将字符串解析成多个变量 */
 		parse_str($_SERVER['QUERY_STRING'], $_GET);
 
 		if ($uri === '/' OR $uri === '')
@@ -281,8 +300,14 @@ class CI_URI {
 	 *
 	 * @return	string
 	 */
+	/* 将CLI模式下的参数整合成URI段 */
 	protected function _parse_argv()
 	{
+        /**
+         *  php index.php tools message "John Smith"
+         *  $_SERVER['argv'][0]是index.php
+         *  返回: tools/message/John Smith
+         */
 		$args = array_slice($_SERVER['argv'], 1);
 		return $args ? implode('/', $args) : '';
 	}
@@ -299,7 +324,12 @@ class CI_URI {
 	 */
 	protected function _remove_relative_directory($uri)
 	{
+	    /* $uri = '/tools/message/John%20Smith' */
 		$uris = array();
+        /**
+         *  strtok($uri, '/'):首次调用
+         *  strtok('/'):以后每次调用，因为strtok会记住它在$uri中的位置
+         */
 		$tok = strtok($uri, '/');
 		while ($tok !== FALSE)
 		{
@@ -309,7 +339,13 @@ class CI_URI {
 			}
 			$tok = strtok('/');
 		}
-
+        /**
+         *  $uris = [
+         *      '0' => 'tools',
+         *      '1' => 'message',
+         *      '2' => 'John%20Smith',
+         *  ];
+         */
 		return implode('/', $uris);
 	}
 

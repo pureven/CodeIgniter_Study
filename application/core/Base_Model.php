@@ -9,7 +9,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @copyright Copyright (c) 2012, Jamie Rumbelow <http://jamierumbelow.net>
  */
 
-class MY_Model extends CI_Model
+class Base_Model extends CI_Model
 {
 
     /* --------------------------------------------------------------

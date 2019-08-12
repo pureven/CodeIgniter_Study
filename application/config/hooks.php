@@ -11,3 +11,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |	https://codeigniter.com/user_guide/general/hooks.html
 |
 */
+
+// hook for enable/disable profiling
+
+$hook['pre_system'][] = array(
+    'class'    => 'Profiler_enabler',
+    'function' => 'enable_profiler',
+    'filename' => 'Profiler_enabler.php',
+    'filepath' => 'hooks',
+    'params'   => array(),
+);

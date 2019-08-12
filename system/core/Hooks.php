@@ -85,6 +85,12 @@ class CI_Hooks {
 	 *
 	 * @return	void
 	 */
+    /**
+     * CI_Hooks constructor.
+     * load_class('Hooks', 'core');时执行构造方法
+     *      判断config文件中是否打开钩子开关，没打开则返回
+     *      include hooks.php文件
+     */
 	public function __construct()
 	{
 		$CFG =& load_class('Config', 'core');
@@ -130,6 +136,11 @@ class CI_Hooks {
 	 * @param	string	$which	Hook name
 	 * @return	bool	TRUE on success or FALSE on failure
 	 */
+    /**
+     * @param string $which
+     * @return bool
+     *      调用_run_hook方法执行钩子中的方法或者函数
+     */
 	public function call_hook($which = '')
 	{
 		if ( ! $this->enabled OR ! isset($this->hooks[$which]))
@@ -165,6 +176,7 @@ class CI_Hooks {
 	protected function _run_hook($data)
 	{
 		// Closures/lambda functions and array($object, 'method') callables
+        /* 闭包或者匿名函数则直接执行*/
 		if (is_callable($data))
 		{
 			is_array($data)
