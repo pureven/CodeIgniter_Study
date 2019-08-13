@@ -173,10 +173,12 @@ class CI_URI {
 
 			$this->segments[0] = NULL;
 			// Populate the segments array
+            /* 'tools/message/JohnSmith' */
 			foreach (explode('/', trim($this->uri_string, '/')) as $val)
 			{
+			    // tools  message  JohnSmith
 				$val = trim($val);
-				// Filter segments for security
+				// Filter segments for security 过滤恶意字符的段
 				$this->filter_uri($val);
 
 				if ($val !== '')
@@ -186,6 +188,11 @@ class CI_URI {
 			}
 
 			unset($this->segments[0]);
+			/**
+             *  1 => 'tools'     类
+             *  2 => 'message'   方法
+             *  3 => 'JohnSmith' 参数
+             */
 		}
 	}
 
@@ -361,6 +368,7 @@ class CI_URI {
 	 */
 	public function filter_uri(&$str)
 	{
+	    /* preg_match('/^['.$this->_permitted_uri_chars.']+$/i'.(UTF8_ENABLED ? 'u' : ''), $str) 如果有特殊字符则报错*/
 		if ( ! empty($str) && ! empty($this->_permitted_uri_chars) && ! preg_match('/^['.$this->_permitted_uri_chars.']+$/i'.(UTF8_ENABLED ? 'u' : ''), $str))
 		{
 			show_error('The URI you submitted has disallowed characters.', 400);

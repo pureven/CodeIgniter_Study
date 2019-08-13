@@ -179,6 +179,7 @@ class CI_Router {
 		// Are query strings enabled in the config file? Normally CI doesn't utilize query strings
 		// since URI segments are more search-engine friendly, but they can optionally be used.
 		// If this feature is enabled, we will gather the directory/class/method a little differently
+        /* 开启字符串查询则使用下列方法获取类和方法 */
 		if ($this->enable_query_strings)
 		{
 			// If the directory is set at this time, it means an override exists, so skip the checks
@@ -222,6 +223,7 @@ class CI_Router {
 			return;
 		}
 
+		/* $this->>uri->uri_string = 'tools/message/JohnSmith' */
 		// Is there anything to parse?
 		if ($this->uri->uri_string !== '')
 		{
@@ -371,14 +373,23 @@ class CI_Router {
 	{
 		// Turn the segment array into a URI string
 		$uri = implode('/', $this->uri->segments);
+		/* $uri = 'tools/message/JohnSmith' */
 
 		// Get HTTP verb
 		$http_verb = isset($_SERVER['REQUEST_METHOD']) ? strtolower($_SERVER['REQUEST_METHOD']) : 'cli';
 
 		// Loop through the route array looking for wildcards
+        /**
+         * $this->>routes = [
+         *  '404_override' => '',
+         *  'welcome' => 'welcome/welcome_modules',
+         *  'test' => 'test/test',
+         *  ]
+         */
 		foreach ($this->routes as $key => $val)
 		{
 			// Check if route format is using HTTP verbs
+            // $val可以是数组
 			if (is_array($val))
 			{
 				$val = array_change_key_case($val, CASE_LOWER);
