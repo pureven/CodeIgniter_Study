@@ -54,4 +54,8 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 $route['welcome']  = 'welcome/welcome_modules';
-$route['test']     = 'test/test';
+$route['test']['get']     = 'test/test';
+$route['products/([a-zA-Z]+)/edit/(\d+)'] = function ($product_type, $id)
+{
+    return 'catalog/product_edit/' . strtolower($product_type) . '/' . $id;
+};

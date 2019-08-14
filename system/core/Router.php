@@ -389,13 +389,20 @@ class CI_Router {
 		foreach ($this->routes as $key => $val)
 		{
 			// Check if route format is using HTTP verbs
-            // $val可以是数组
+            /**
+             * $val可以是数组,例如
+             * $route['test'] = [
+             *      'get'   => 'test_get',
+             *      'post'  => 'test_post',
+             *  ];
+             */
 			if (is_array($val))
 			{
+			    // 将数组的所有key修改为小写
 				$val = array_change_key_case($val, CASE_LOWER);
 				if (isset($val[$http_verb]))
 				{
-					$val = $val[$http_verb];
+					$val = $val[$http_verb]; // $val = 'test_get';
 				}
 				else
 				{
@@ -410,11 +417,31 @@ class CI_Router {
 			if (preg_match('#^'.$key.'$#', $uri, $matches))
 			{
 				// Are we using callbacks to process back-references?
+                /**
+                 * 回调函数
+                 * $route['products/([a-zA-Z]+)/edit/(\d+)'] = function ($product_type, $id)
+                 * {
+                 *      return 'catalog/product_edit/' . strtolower($product_type) . '/' . $id;
+                 *  };
+                 */
+
+                /**
+                 * $matches = [
+                 *      [0] => products/hello/edit/12
+                 *      [1] => hello
+                 *      [2] => 12
+                 * ]
+                 */
 				if ( ! is_string($val) && is_callable($val))
 				{
 					// Remove the original string from the matches array.
 					array_shift($matches);
-
+                    /**
+                     * $matches = [
+                     *      [0] = hello
+                     *      [1] = 12
+                     * ]
+                     */
 					// Execute the callback using the values in matches as its parameters.
 					$val = call_user_func_array($val, $matches);
 				}
