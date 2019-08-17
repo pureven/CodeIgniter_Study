@@ -409,6 +409,7 @@ if ( ! is_php('5.4'))
 /*
  * ------------------------------------------------------
  *  Instantiate the routing class and set the routing
+ *  如果在index.php 中设置了$routing, 则传入Router的构造方法里
  * ------------------------------------------------------
  */
 	$RTR =& load_class('Router', 'core', isset($routing) ? $routing : NULL);

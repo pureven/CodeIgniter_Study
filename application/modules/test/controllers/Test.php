@@ -23,4 +23,9 @@ class Test extends CI_Controller
     {
         var_dump('message');exit();
     }
+
+    public function hello()
+    {
+        var_dump(__METHOD__);
+    }
 }

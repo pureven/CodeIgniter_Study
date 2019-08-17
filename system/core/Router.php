@@ -123,6 +123,7 @@ class CI_Router {
 	 */
 	public function __construct($routing = NULL)
 	{
+	    /* $routing 由CodeIgniter.php传入 ，在index.php中设置 */
 		$this->config =& load_class('Config', 'core');
 		$this->uri =& load_class('URI', 'core');
 
@@ -179,7 +180,7 @@ class CI_Router {
 		// Are query strings enabled in the config file? Normally CI doesn't utilize query strings
 		// since URI segments are more search-engine friendly, but they can optionally be used.
 		// If this feature is enabled, we will gather the directory/class/method a little differently
-        /* 开启字符串查询则使用下列方法获取类和方法 */
+        /* 开启字符串查询则使用下列方法获取类和方法 ?c=xxx形式的路由 */
 		if ($this->enable_query_strings)
 		{
 			// If the directory is set at this time, it means an override exists, so skip the checks
@@ -247,8 +248,19 @@ class CI_Router {
 	 * @param	array	$segments	URI segments
 	 * @return	void
 	 */
+    /**
+     * HMVC扩展后，此方法被重写，具体参见application/third_party/MX/Router.php
+     * @param array $segments
+     */
 	protected function _set_request($segments = array())
 	{
+        /**
+         * $segments = [
+         *  0 => 'test'
+         *  1 => 'test'
+         *  2 => 'hello'
+         * ]
+         */
 		$segments = $this->_validate_request($segments);
 		// If we don't have any segments left - try the default controller;
 		// WARNING: Directories get shifted out of the segments array!
@@ -267,6 +279,7 @@ class CI_Router {
 			}
 		}
 
+		/* 第一个参数为类名、第二个参数为方法，没有则为index*/
 		$this->set_class($segments[0]);
 		if (isset($segments[1]))
 		{
@@ -277,8 +290,13 @@ class CI_Router {
 			$segments[1] = 'index';
 		}
 
+        /**
+         * array_unshift($segments, NULL):将第一个参数赋值NULL
+         * unset($segments[0]),是将刚刚插入的NULL去掉，不明白为什么这样？
+         */
 		array_unshift($segments, NULL);
 		unset($segments[0]);
+		// 注意！！！这里设置的是URI里面的rsegments
 		$this->uri->rsegments = $segments;
 	}
 
@@ -334,15 +352,23 @@ class CI_Router {
 	protected function _validate_request($segments)
 	{
 		$c = count($segments);
+		/* $this->directory = $routing('directory'), 其中$routing('directory')在index.php 中设置 */
 		$directory_override = isset($this->directory);
 
 		// Loop through our segments and return as soon as a controller
 		// is found or when such a directory doesn't exist
 		while ($c-- > 0)
 		{
+		    /*  路由中设置translate_uri_dashes为true则把'-'替换为'_' */
 			$test = $this->directory
 				.ucfirst($this->translate_uri_dashes === TRUE ? str_replace('-', '_', $segments[0]) : $segments[0]);
 
+            /**
+             *  $test = test
+             *  application/contollers/目录下没有test.php
+             *  && 没有设置目录覆盖
+             *  && application/contollers/目录下存在test目录 则执行将目录设置为this->directory = this->directory . test/
+             */
 			if ( ! file_exists(APPPATH.'controllers/'.$test.'.php')
 				&& $directory_override === FALSE
 				&& is_dir(APPPATH.'controllers/'.$this->directory.$segments[0])
@@ -443,14 +469,32 @@ class CI_Router {
                      * ]
                      */
 					// Execute the callback using the values in matches as its parameters.
+                    /**
+                     * call_user_func_array: 回调函数、 索引数组
+                     * 这里的$matches为传给路由定义的回调函数作为参数用的
+                     * $val为回调函数的返回值：'catalog/product_edit/hello/12'
+                     */
 					$val = call_user_func_array($val, $matches);
 				}
 				// Are we using the default routing method for back-references?
 				elseif (strpos($val, '$') !== FALSE && strpos($key, '(') !== FALSE)
 				{
+                    /**
+                     *  $route['test/([a-zA-Z0-9-]+)']     = 'test/test/$1';
+                     *  url:http://localhost:58080/CodeIgniter_hmvc/index.php/test/hello
+                     *  $val = 'test/test/hello'
+                     */
 					$val = preg_replace('#^'.$key.'$#', $val, $uri);
 				}
 
+                /**
+                 * $val = 'test/test/hello'
+                 * explode(explode('/', $val)) = [
+                 *      0 => 'test'
+                 *      1 => 'test'
+                 *      2 => 'hello'
+                 *  ]
+                 */
 				$this->_set_request(explode('/', $val));
 				return;
 			}

@@ -6,11 +6,11 @@
  * Time: 19:26
  */
 
-class Test_default extends CI_Controller
+class Test extends CI_Controller
 {
     public function index()
     {
-        $this->load->view('test_default');
+        $this->load->view('Test_');
     }
 
 }
