@@ -55,63 +55,63 @@ class CI_Output {
 	 *
 	 * @var	string
 	 */
-	public $final_output;
+	public $final_output; // 保存最终的输出结果
 
 	/**
 	 * Cache expiration time
 	 *
 	 * @var	int
 	 */
-	public $cache_expiration = 0;
+	public $cache_expiration = 0; // 缓存生效时间
 
 	/**
 	 * List of server headers
 	 *
 	 * @var	array
 	 */
-	public $headers = array();
+	public $headers = array(); // headers列表
 
 	/**
 	 * List of mime types
 	 *
 	 * @var	array
 	 */
-	public $mimes =	array();
+	public $mimes =	array(); // mimes类型列表
 
 	/**
 	 * Mime-type for the current page
 	 *
 	 * @var	string
 	 */
-	protected $mime_type = 'text/html';
+	protected $mime_type = 'text/html'; // text/html类型
 
 	/**
 	 * Enable Profiler flag
 	 *
 	 * @var	bool
 	 */
-	public $enable_profiler = FALSE;
+	public $enable_profiler = FALSE; // 保存用户profile标志位
 
 	/**
 	 * php.ini zlib.output_compression flag
 	 *
 	 * @var	bool
 	 */
-	protected $_zlib_oc = FALSE;
+	protected $_zlib_oc = FALSE; // ini开启zlib标志位
 
 	/**
 	 * CI output compression flag
 	 *
 	 * @var	bool
 	 */
-	protected $_compress_output = FALSE;
+	protected $_compress_output = FALSE; // 是否压缩输出标志位
 
 	/**
 	 * List of profiler sections
 	 *
 	 * @var	array
 	 */
-	protected $_profiler_sections =	array();
+	protected $_profiler_sections =	array(); // 保存用户profile的数组
 
 	/**
 	 * Parse markers flag
@@ -120,14 +120,14 @@ class CI_Output {
 	 *
 	 * @var	bool
 	 */
-	public $parse_exec_vars = TRUE;
+	public $parse_exec_vars = TRUE; // 启用或禁用解析伪变量
 
 	/**
 	 * mbstring.func_overload flag
 	 *
 	 * @var	bool
 	 */
-	protected static $func_overload;
+	protected static $func_overload; // 函数重载标志位
 
 	/**
 	 * Class constructor
@@ -138,7 +138,12 @@ class CI_Output {
 	 */
 	public function __construct()
 	{
+	    // 首先从ini配置里拿zlib.output_compression的值，看是否开启压缩
 		$this->_zlib_oc = (bool) ini_get('zlib.output_compression');
+		/**
+         * 当php环境没有开启gzip压缩，且配置文件设置compress_output为Ture，安装了zlib扩展
+         * 将属性_compress_output设置为True，通常情况下是启用服务器压缩而关闭程序本身的压缩功能
+        **/
 		$this->_compress_output = (
 			$this->_zlib_oc === FALSE
 			&& config_item('compress_output') === TRUE
@@ -159,7 +164,7 @@ class CI_Output {
 	 * Get Output
 	 *
 	 * Returns the current output string.
-	 *
+	 * 获取并返回$final_output
 	 * @return	string
 	 */
 	public function get_output()
@@ -173,7 +178,7 @@ class CI_Output {
 	 * Set Output
 	 *
 	 * Sets the output string.
-	 *
+	 * 设置$final_output返回类
 	 * @param	string	$output	Output data
 	 * @return	CI_Output
 	 */
@@ -189,7 +194,7 @@ class CI_Output {
 	 * Append Output
 	 *
 	 * Appends data onto the output string.
-	 *
+	 * 以append的方式修改$final_output，返回类
 	 * @param	string	$output	Data to append
 	 * @return	CI_Output
 	 */
@@ -205,7 +210,15 @@ class CI_Output {
 	 * Set Header
 	 *
 	 * Lets you set a server header which will be sent with the final output.
-	 *
+     *
+	 * 允许你手工设置服务器的 HTTP 头，输出类将在最终显示页面时发送它
+     * $this->output->set_header('HTTP/1.0 200 OK');
+     * $this->output->set_header('HTTP/1.1 200 OK');
+     * $this->output->set_header('Last-Modified: '.gmdate('D, d M Y H:i:s', $last_update).' GMT');
+     * $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate');
+     * $this->output->set_header('Cache-Control: post-check=0, pre-check=0');
+     *
+     * $this->output->set_header('Pragma: no-cache');
 	 * Note: If a file is cached, headers will not be sent.
 	 * @todo	We need to figure out how to permit headers to be cached.
 	 *
@@ -237,6 +250,7 @@ class CI_Output {
 	 * @param	string	$charset	Character set (default: NULL)
 	 * @return	CI_Output
 	 */
+	// 设置页面的 MIME 类型，可以很方便的提供 JSON 数据、JPEG、XML 等等格式,通过$charset设置文档的字符集
 	public function set_content_type($mime_type, $charset = NULL)
 	{
 		if (strpos($mime_type, '/') === FALSE)
@@ -273,13 +287,14 @@ class CI_Output {
 
 	/**
 	 * Get Current Content-Type Header
-	 *
+	 * 获取当前正在使用的 HTTP 头 Content-Type ，不包含字符集部分。
 	 * @return	string	'text/html', if not already set
 	 */
 	public function get_content_type()
 	{
 		for ($i = 0, $c = count($this->headers); $i < $c; $i++)
 		{
+		    // sscanf($str, $format) 根据指定格式解析输入的字符
 			if (sscanf($this->headers[$i][0], 'Content-Type: %[^;]', $content_type) === 1)
 			{
 				return $content_type;
@@ -417,10 +432,14 @@ class CI_Output {
 		// Note:  We use load_class() because we can't use $CI =& get_instance()
 		// since this function is sometimes called by the caching mechanism,
 		// which happens before the CI super object is available.
+        /**
+         *  我们实用load_class()而不直接用$CI =& get_instance()
+         *  因为有时候本方法是被缓存机制调用的，这时候$CI超级对象还无法使用
+         */
 		$BM =& load_class('Benchmark', 'core');
 		$CFG =& load_class('Config', 'core');
 
-		// Grab the super object if we can.
+		// Grab the super object if we can. 如果可能的话，获取超级对象$CI
 		if (class_exists('CI_Controller', FALSE))
 		{
 			$CI =& get_instance();
@@ -439,6 +458,7 @@ class CI_Output {
 		// Do we need to write a cache file? Only if the controller does not have its
 		// own _output() method and we are not dealing with a cache file, which we
 		// can determine by the existence of the $CI object above
+        // 当$CI对象存在时证明我们不是在从缓存输出数据，这时如果Controller没有自定义_output方法就需要写缓存
 		if ($this->cache_expiration > 0 && isset($CI) && ! method_exists($CI, '_output'))
 		{
 			$this->_write_cache($output);
@@ -449,6 +469,7 @@ class CI_Output {
 		// Parse out the elapsed time and memory usage,
 		// then swap the pseudo-variables with the data
 
+        // $elapsed 为total_execution_time_start，total_execution_time_end两点之间所用的时间
 		$elapsed = $BM->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 
 		if ($this->parse_exec_vars === TRUE)
@@ -547,7 +568,7 @@ class CI_Output {
 	/**
 	 * Write Cache
 	 *
-	 * @param	string	$output	Output data to cache
+	 * @param	string	$output	Output data to cache 写入缓存文件
 	 * @return	void
 	 */
 	public function _write_cache($output)

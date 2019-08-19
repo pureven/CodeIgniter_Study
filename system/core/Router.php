@@ -508,6 +508,7 @@ class CI_Router {
 	// --------------------------------------------------------------------
 
 	/**
+     * 此方法被application/third_party/MX/Router.php重写
 	 * Set class name
 	 *
 	 * @param	string	$class	Class name
