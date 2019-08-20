@@ -693,6 +693,7 @@ class CI_Output {
 
 		// Build the file path. The file name is an MD5 hash of the full URI
         // 一条准确的路由都会对应一个缓存文件，缓存文件是对应路由字符串的md5密文。
+        // 这个$uri貌似有问题
 		$uri = $CFG->item('base_url').$CFG->item('index_page').$URI->uri_string;
 
         /**
@@ -713,7 +714,7 @@ class CI_Output {
 				$uri .= '?'.$_SERVER['QUERY_STRING'];
 			}
 		}
-
+		// $filepath = 'G:\wamp\www\CodeIgniter_hmvc\application\cache/ec150d0298c8e3f25a9dfea3bcf3c5d2';
 		$filepath = $cache_path.md5($uri);
 
 		if ( ! file_exists($filepath) OR ! $fp = @fopen($filepath, 'rb'))
@@ -721,6 +722,10 @@ class CI_Output {
 			return FALSE;
 		}
 
+		// flock() 轻便的咨询文件锁定
+        // LOCK_SH: 取得共享锁定（读取的程序）
+        // LOCK_EX: 取得独占锁定（写入的程序）
+        // LOCK_UN: 释放锁定   （无论共享或独占）
 		flock($fp, LOCK_SH);
 
 		$cache = (filesize($filepath) > 0) ? fread($fp, filesize($filepath)) : '';
@@ -729,6 +734,11 @@ class CI_Output {
 		fclose($fp);
 
 		// Look for embedded serialized file info.
+        // 这个地方可参考_write_cache()方法中构造缓存的部分：$output = $cache_info.'ENDCI--->'.$output;
+        //下面这个ENDCI--->字样，只是因为CI的缓存文件里面的内容是规定以cache_info['expire', 'headers']＋ENDCI--->开头而已。
+        //如果不符合此结构，可视为非CI的缓存文件，或者文件已损坏，获取缓存内容失败，返回FALSE。
+        //$match[0]是除页面内容之外的附加信息。
+        //$match[1]是附加信息中和时间有关的信息。
 		if ( ! preg_match('/^(.*)ENDCI--->/', $cache, $match))
 		{
 			return FALSE;
