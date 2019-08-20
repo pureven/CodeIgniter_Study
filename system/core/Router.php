@@ -436,7 +436,7 @@ class CI_Router {
 				}
 			}
 
-			// Convert wildcards to RegEx
+			// Convert wildcards to RegEx 通配符转为正则，通过这里可知通配符是由正则实现的。。
 			$key = str_replace(array(':any', ':num'), array('[^/]+', '[0-9]+'), $key);
 
 			// Does the RegEx match?

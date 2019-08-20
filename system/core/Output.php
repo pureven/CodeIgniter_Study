@@ -150,6 +150,13 @@ class CI_Output {
 			&& extension_loaded('zlib')
 		);
 
+        /**
+         * 在 ini 中设置 mbstring.func_overload 将允许用 mbstring 扩展中的相似功能替换掉字符串函数的子集。
+         * 例如，strlen() 将不再返回以字节为单位的字符串长度，而是根据当前选择的内部编码返回代码点中的长度。
+         * 这意味着使用 mbstring.func_overload 的代码，与几乎所有在基本字符串操作正常工作的假设下编写的代码都不兼容。
+         * 一些库完全禁止 func_overload （例如 Symfony），其它的则会出现一些不可察觉的行为变化。
+         * 希望支持 func_overload 的代码需要有在普通字符串函数和具有8位编码的 mbstring 函数之间切换的条件（但是，通常只有加密库才会这么做）。
+         */
 		isset(self::$func_overload) OR self::$func_overload = (extension_loaded('mbstring') && ini_get('mbstring.func_overload'));
 
 		// Get mime types for later
@@ -674,17 +681,31 @@ class CI_Output {
 	 * @param	object	&$URI	CI_URI class instance
 	 * @return	bool	TRUE on success or FALSE on failure
 	 */
+    /**
+     * 在CodeIgniter.php里面有调用此方法，此方法是负责缓存的输出
+     * 如果在CodeIgniter.php中调用此方法有输出，则本次请求的运行将直接结束，直接以缓存输出作为响应。
+     *
+     */
 	public function _display_cache(&$CFG, &$URI)
 	{
+        //取得保存缓存的路径
 		$cache_path = ($CFG->item('cache_path') === '') ? APPPATH.'cache/' : $CFG->item('cache_path');
 
 		// Build the file path. The file name is an MD5 hash of the full URI
+        // 一条准确的路由都会对应一个缓存文件，缓存文件是对应路由字符串的md5密文。
 		$uri = $CFG->item('base_url').$CFG->item('index_page').$URI->uri_string;
 
+        /**
+         * $_SERVER["REQUEST_URI"] => "/api/ctroller/function?param1=&param2=&param3=hello&param4=&page=1&limit=10"，访问的页面URI，包含查询字符串
+         * $_SERVER['QUERY_STRING'] 查询字符串，如果有的话通过它来查询
+         * $_SERVER["QUERY_STRING"] => "param1=&param2=&param3=hello&param4=&page=1&limit=10"，查询字符串，不存在为" "
+         */
 		if (($cache_query_string = $CFG->item('cache_query_string')) && ! empty($_SERVER['QUERY_STRING']))
 		{
 			if (is_array($cache_query_string))
 			{
+			    // array_flip() 交换数组中的键和值
+                // array_intersect_key() 使用键名比较计算数组的交集
 				$uri .= '?'.http_build_query(array_intersect_key($_GET, array_flip($cache_query_string)));
 			}
 			else
