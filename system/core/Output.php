@@ -359,7 +359,7 @@ class CI_Output {
 	 */
 	public function set_status_header($code = 200, $text = '')
 	{
-		set_status_header($code, $text);
+		set_status_header($code, $text); // 走Common.php中的方法
 		return $this;
 	}
 
@@ -482,6 +482,7 @@ class CI_Output {
 		if ($this->parse_exec_vars === TRUE)
 		{
 			$memory	= round(memory_get_usage() / 1024 / 1024, 2).'MB';
+			// {elapsed_time} {memory_usage} 通常在HTML文件中使用，例如welcome_message.html
 			$output = str_replace(array('{elapsed_time}', '{memory_usage}'), array($elapsed, $memory), $output);
 		}
 
@@ -492,6 +493,10 @@ class CI_Output {
 			&& $this->_compress_output === TRUE
 			&& isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE)
 		{
+		    // 将打开输出缓冲。当输出缓冲激活后，脚本将不会输出内容（除http标头外），相反需要输出的内容被存储在内部缓冲区中
+            // ob_gzhandler()目的是用在ob_start()中作回调函数，以方便将gz 编码的数据发送到支持压缩页面的浏览器。
+            // 在ob_gzhandler()真正发送压缩过的数据之前，该 函数会确定（判定）浏览器可以接受哪种类型内容编码（"gzip","deflate",或者根本什么都不支持），
+            // 然后 返回相应的输出。 所有可以发送正确头信息表明他自己可以接受压缩的网页的浏览器，都可以支持。
 			ob_start('ob_gzhandler');
 		}
 
@@ -515,6 +520,8 @@ class CI_Output {
 		{
 			if ($this->_compress_output === TRUE)
 			{
+			    // $_SERVER['HTTP_ACCEPT_ENCODING'] = 'gzip, deflate, br';
+                // 请求头信息： Accept-Encoding: gzip, deflate, br
 				if (isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE)
 				{
 					header('Content-Encoding: gzip');
@@ -524,6 +531,7 @@ class CI_Output {
 				{
 					// User agent doesn't support gzip compression,
 					// so we'll have to decompress our cache
+                    // 通常用于未定义gzdecode()函数的情况，使用gzinflate代替
 					$output = gzinflate(self::substr($output, 10, -8));
 				}
 			}
@@ -538,6 +546,8 @@ class CI_Output {
 
 		// Do we need to generate profile data?
 		// If so, load the Profile class and run it.
+        // Bechmarking只能显示两个基准点之间所消耗的时间信息，
+        // 这里使用Profile显示所有基准点的时间消耗，同时还会显示出提交的数据和数据库查询的信息
 		if ($this->enable_profiler === TRUE)
 		{
 			$CI->load->library('profiler');
@@ -583,7 +593,7 @@ class CI_Output {
 		$CI =& get_instance();
 		$path = $CI->config->item('cache_path');
 		$cache_path = ($path === '') ? APPPATH.'cache/' : $path;
-
+		// $cache_path: 'G:\wamp\www\CodeIgniter_hmvc\application\cache/'
 		if ( ! is_dir($cache_path) OR ! is_really_writable($cache_path))
 		{
 			log_message('error', 'Unable to write cache file: '.$cache_path);
@@ -593,11 +603,16 @@ class CI_Output {
 		$uri = $CI->config->item('base_url')
 			.$CI->config->item('index_page')
 			.$CI->uri->uri_string();
+		// $uri: 'http://[::1]/CodeIgniter_hmvc/index.phpwelcome'
 
 		if (($cache_query_string = $CI->config->item('cache_query_string')) && ! empty($_SERVER['QUERY_STRING']))
 		{
 			if (is_array($cache_query_string))
 			{
+			    // http_build_query():  生成 URL-encode 之后的请求字符串
+                // array_intersect_key(): 使用键名比较计算数组的交集
+                // array_flip(): 交换数组中的键和值
+                // $cache_query_string从config.php里配置，可配置成数组，待做实验！
 				$uri .= '?'.http_build_query(array_intersect_key($_GET, array_flip($cache_query_string)));
 			}
 			else
@@ -605,7 +620,8 @@ class CI_Output {
 				$uri .= '?'.$_SERVER['QUERY_STRING'];
 			}
 		}
-
+		// 这时$uri为加上query_stirng后的url：'http://[::1]/CodeIgniter_hmvc/index.phpwelcome?welcome'
+        // 然后对$uri进行md5编码，也就是说不同的参数对应不同的缓存文件
 		$cache_path .= md5($uri);
 
 		if ( ! $fp = @fopen($cache_path, 'w+b'))
@@ -614,6 +630,12 @@ class CI_Output {
 			return;
 		}
 
+		// flock():轻便的咨询文件锁定
+        /**
+         *  LOCK_SH: 取得共享锁定（读取的程序）
+         *  LOCK_EX: 取得独占锁定（写入的程序）
+         *  LOCK_UN: 释放锁定
+         */
 		if ( ! flock($fp, LOCK_EX))
 		{
 			log_message('error', 'Unable to secure a file lock for file at: '.$cache_path);
@@ -626,6 +648,7 @@ class CI_Output {
 		// we're serving it
 		if ($this->_compress_output === TRUE)
 		{
+		    // 将$output进行gzip压缩
 			$output = gzencode($output);
 
 			if ($this->get_header('content-type') === NULL)
@@ -642,10 +665,12 @@ class CI_Output {
 			'headers'	=> $this->headers
 		));
 
+		// 内容前加上$cache_info . 'ENDCI--->'
 		$output = $cache_info.'ENDCI--->'.$output;
 
 		for ($written = 0, $length = self::strlen($output); $written < $length; $written += $result)
 		{
+		    // 自定义substr():这里考虑到可能mbstring重载，需告知字节数
 			if (($result = fwrite($fp, self::substr($output, $written))) === FALSE)
 			{
 				break;
@@ -662,10 +687,12 @@ class CI_Output {
 			return;
 		}
 
+		// 设置权限
 		chmod($cache_path, 0640);
 		log_message('debug', 'Cache file written: '.$cache_path);
 
 		// Send HTTP cache-control headers to browser to match file cache settings.
+        // 发送HTTP缓存控制头到浏览器以匹配文件缓存设置.
 		$this->set_cache_header($_SERVER['REQUEST_TIME'], $expire);
 	}
 
@@ -714,7 +741,7 @@ class CI_Output {
 				$uri .= '?'.$_SERVER['QUERY_STRING'];
 			}
 		}
-		// $filepath = 'G:\wamp\www\CodeIgniter_hmvc\application\cache/ec150d0298c8e3f25a9dfea3bcf3c5d2';
+		// $filepath = 'G:\wamp\www\CodeIgniter_hmvc\application\cache/449a65bd3d6bad1ee34104f01d27cc26';
 		$filepath = $cache_path.md5($uri);
 
 		if ( ! file_exists($filepath) OR ! $fp = @fopen($filepath, 'rb'))
@@ -735,21 +762,23 @@ class CI_Output {
 
 		// Look for embedded serialized file info.
         // 这个地方可参考_write_cache()方法中构造缓存的部分：$output = $cache_info.'ENDCI--->'.$output;
-        //下面这个ENDCI--->字样，只是因为CI的缓存文件里面的内容是规定以cache_info['expire', 'headers']＋ENDCI--->开头而已。
-        //如果不符合此结构，可视为非CI的缓存文件，或者文件已损坏，获取缓存内容失败，返回FALSE。
-        //$match[0]是除页面内容之外的附加信息。
-        //$match[1]是附加信息中和时间有关的信息。
+        // 下面这个ENDCI--->字样，只是因为CI的缓存文件里面的内容是规定以cache_info['expire', 'headers']＋ENDCI--->开头而已。
+        // 如果不符合此结构，可视为非CI的缓存文件，或者文件已损坏，获取缓存内容失败，返回FALSE。
+        // $match[0]是除页面内容之外的附加信息:   'a:2:{s:6:"expire";i:1566534312;s:7:"headers";a:0:{}}ENDCI--->'
+        // $match[1]是附加信息中和时间有关的信息: 'a:2:{s:6:"expire";i:1566534312;s:7:"headers";a:0:{}}'
+        // 缓存文件开头: a:2:{s:6:"expire";i:1566534312;s:7:"headers";a:0:{}}ENDCI---><!DOCTYPE html>
 		if ( ! preg_match('/^(.*)ENDCI--->/', $cache, $match))
 		{
 			return FALSE;
 		}
 
 		$cache_info = unserialize($match[1]);
-		$expire = $cache_info['expire'];
+		$expire = $cache_info['expire']; // 1566535047
 
-		$last_modified = filemtime($filepath);
+        // filemtime(): 取得文件修改时间
+		$last_modified = filemtime($filepath); // 1566534987
 
-		// Has the file expired?
+		// Has the file expired? 过期删除
 		if ($_SERVER['REQUEST_TIME'] >= $expire && is_really_writable($cache_path))
 		{
 			// If so we'll delete it.
@@ -759,9 +788,11 @@ class CI_Output {
 		}
 
 		// Send the HTTP cache control headers
+        // 304 200
 		$this->set_cache_header($last_modified, $expire);
 
 		// Add headers from cache file.
+        // 如果有的话就加到header里
 		foreach ($cache_info['headers'] as $header)
 		{
 			$this->set_header($header[0], $header[1]);
@@ -840,8 +871,11 @@ class CI_Output {
 	{
 		$max_age = $expiration - $_SERVER['REQUEST_TIME'];
 
+		// 如果文件最后修改时间在在所请求的资源在给定的日期时间之后则返回200，否则返回304
+        // 参考：https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/If-Modified-Since
 		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $last_modified <= strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']))
 		{
+		    // 未过期则走缓存
 			$this->set_status_header(304);
 			exit;
 		}
