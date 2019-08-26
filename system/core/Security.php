@@ -1,4 +1,4 @@
-<?php
+  <?php
 /**
  * CodeIgniter
  *
@@ -50,7 +50,7 @@ class CI_Security {
 
 	/**
 	 * List of sanitize filename strings
-	 *
+	 * sanitize_filename()方法中使用此属性，即文件名中不允许出现下列字符串
 	 * @var	array
 	 */
 	public $filename_bad_chars =	array(
@@ -83,7 +83,7 @@ class CI_Security {
 
 	/**
 	 * XSS Hash
-	 *
+	 * URL随机哈希值
 	 * Random Hash for protecting URLs.
 	 *
 	 * @var	string
@@ -92,7 +92,7 @@ class CI_Security {
 
 	/**
 	 * CSRF Hash
-	 *
+	 * 防csrf攻击的cookie标记的哈希值
 	 * Random hash for Cross Site Request Forgery protection cookie
 	 *
 	 * @var	string
@@ -1061,7 +1061,8 @@ class CI_Security {
 
 	/**
 	 * Set CSRF Hash and Cookie
-	 *
+	 * 如果$_COOKIE[$this->_csrf_cookie_name]存在且合法则使用此值，
+     * 否则重新生成一个
 	 * @return	string
 	 */
 	protected function _csrf_set_hash()

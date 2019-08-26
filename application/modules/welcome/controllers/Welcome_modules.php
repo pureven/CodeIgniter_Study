@@ -15,7 +15,7 @@ class Welcome_modules extends MX_Controller
 
     public function index()
     {
-        $this->output->cache(10); // 开启缓存， 1 代表 1分钟更新一次
+        $this->output->cache(1); // 开启缓存， 1 代表 1分钟更新一次
         $this->load->view('welcome_modules_message');
     }
 }
