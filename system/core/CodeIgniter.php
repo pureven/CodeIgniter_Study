@@ -431,6 +431,7 @@ if ( ! is_php('5.4'))
 /*
  * ------------------------------------------------------
  *	Is there a valid cache file? If so, we're done...
+ * cache_override 使用你自己的方法来替代 输出类 中的 _display_cache() 方法，这让你有自己的缓存显示机制。
  * ------------------------------------------------------
  */
 	if ($EXT->call_hook('cache_override') === FALSE && $OUT->_display_cache($CFG, $URI) === TRUE)
