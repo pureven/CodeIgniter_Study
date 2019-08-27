@@ -421,6 +421,8 @@ class CI_Input {
 	 * Fetch the IP Address
 	 *
 	 * Determines and validates the visitor's IP address.
+     * 返回当前用户的 IP 地址，如果 IP 地址无效，则返回 '0.0.0.0'
+     * 该方法会根据 $config['proxy_ips'] 配置，来返回 HTTP_X_FORWARDED_FOR、 HTTP_CLIENT_IP、HTTP_X_CLIENT_IP 或 HTTP_X_CLUSTER_CLIENT_IP 。
 	 *
 	 * @return	string	IP address
 	 */
@@ -431,16 +433,34 @@ class CI_Input {
 			return $this->ip_address;
 		}
 
+        /**
+         * 当服务器使用了代理时，REMOTER_ADDR获取的就是代理服务器的IP了，
+         * 需要从HTTP_X_FORWARDED_FOR、HTTP_CLIENT_IP、HTTP_X_CLIENT_IP、HTTP_X_CLUSTER_CLIENT_IP或其他设定的值中获取。
+         * 这里设定的就是代理服务器的IP，逗号分隔。
+         */
 		$proxy_ips = config_item('proxy_ips');
 		if ( ! empty($proxy_ips) && ! is_array($proxy_ips))
 		{
 			$proxy_ips = explode(',', str_replace(' ', '', $proxy_ips));
 		}
 
+        /**
+         * REMOTE_ADDR代表着客户端的IP，但是这个客户端是相对服务器而言的，也就是实际上与服务器相连的机器的IP（建立tcp连接的那个），这个值是不可伪造的，
+         * 如果没有代理的话，这个值就是用户实际的IP值，有代理的话，用户的请求会经过代理再到服务器，这个时候REMOTE_ADDR会被设置为代理机器的IP值。
+         */
 		$this->ip_address = $this->server('REMOTE_ADDR');
 
 		if ($proxy_ips)
 		{
+            /**
+             * HTTP_X_FORWARDED_FOR: 是有标准定义,用来识别通过HTTP代理或负载均衡方式连接到Web服务器的客户端最原始的IP地址,
+             *      有了代理就获取不了用户的真实IP，由此X-Forwarded-For应运而生，它是一个非正式协议，
+             *      在请求转发到代理的时候代理会添加一个X-Forwarded-For头，将连接它的客户端IP（也就是你的上网机器IP）加到这个头信息里，
+             *      这样末端的服务器就能获取真正上网的人的IP了
+             * HTTP_CLIENT_IP: 头是有的，只是未成标准，不一定服务器都实现了
+             * HTTP_X_CLIENT_IP:
+             * HTTP_X_CLUSTER_CLIENT_IP:
+             */
 			foreach (array('HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP') as $header)
 			{
 				if (($spoof = $this->server($header)) !== NULL)
