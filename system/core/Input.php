@@ -137,9 +137,16 @@ class CI_Input {
 	 */
 	public function __construct()
 	{
+        // 表示是否允许用户使用$_GET全局变量，如果设置为不允许，会在输入类构造函数处理中将$_GET清空。
 		$this->_allow_get_array		= (config_item('allow_get_array') !== FALSE);
+
+        // $config['global_xss_filtering']表示是否开启XSS全局防御的标志位，如果设置为允许，则会对用户输入和Cookie的内容中进行XSS过滤。
 		$this->_enable_xss		= (config_item('global_xss_filtering') === TRUE);
+
+		// $config['csrf_protection']表示是否开启CSRF防御，如果设置为允许，则会在对表单数据进行处理时进行CSRF方法的检查。
 		$this->_enable_csrf		= (config_item('csrf_protection') === TRUE);
+
+		// $config['standardize_newlines']表示是否标准化换行符，如果设置为允许，则会在对表单数据进行处理时用PHP_EOL代替数据中的换行符。
 		$this->_standardize_newlines	= (bool) config_item('standardize_newlines');
 
 		$this->security =& load_class('Security', 'core');
@@ -150,7 +157,7 @@ class CI_Input {
 			$this->uni =& load_class('Utf8', 'core');
 		}
 
-		// Sanitize global arrays
+		// Sanitize global arrays 清理全局数组，即处理表单数据,$_GET,$_POST,$_COOKIE去掉不合要求的字符
 		$this->_sanitize_globals();
 
 		// CSRF Protection check
@@ -594,7 +601,7 @@ class CI_Input {
 	 *	- Unsets $_GET data, if query strings are not enabled
 	 *	- Cleans POST, COOKIE and SERVER data
 	 * 	- Standardizes newline characters to PHP_EOL
-	 *
+	 *  表单处理方法
 	 * @return	void
 	 */
 	protected function _sanitize_globals()
@@ -718,10 +725,12 @@ class CI_Input {
 	 * @param	bool	$fatal	Whether to terminate script exection
 	 *				or to return FALSE if an invalid
 	 *				key is encountered
+     *  表单key数据处理
 	 * @return	string|bool
 	 */
 	protected function _clean_input_keys($str, $fatal = TRUE)
 	{
+        //如果$str中有不允许的字符串则根据$fatal取值返回false活着直接报503，exit
 		if ( ! preg_match('/^[a-z0-9:_\/|-]+$/i', $str))
 		{
 			if ($fatal === TRUE)

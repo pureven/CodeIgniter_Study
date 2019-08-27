@@ -166,10 +166,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /* 版本小于5.4.0则做兼容处理 */
 if ( ! is_php('5.4'))
 {
-    /* 关闭当前 magic_quotes_runtime 配置选项的激活状态,7.0版本PHP中废弃该选项*/
+    /**
+     * 关闭当前 magic_quotes_runtime 配置选项的激活状态,7.0版本PHP中废弃该选项
+     * 在系统初始化期间， magic_quotes_runtime 指令会被禁用， 这样当你在从数据库中获取数据时就不用再去除反斜线了。
+     */
 	ini_set('magic_quotes_runtime', 0);
 
-	/* register_globals打开后，各种变量会被注入代码，非常不安全，PHP5.4.0将其移出 */
+	/**
+     * register_globals打开后，各种变量会被注入代码，非常不安全，PHP5.4.0将其移出
+     * 在系统初始化期间，如果发现任何 $_GET、$_POST、$_REQUEST 和 $_COOKIE 数组中的键值变成了全局变量，则删除该变量。
+     * 这个过程和设置 register_globals = off 效果是一样的。
+     */
 	if ((bool) ini_get('register_globals'))
 	{
 		$_protected = array(
