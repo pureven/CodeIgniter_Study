@@ -186,9 +186,11 @@ class CI_Input {
 		is_bool($xss_clean) OR $xss_clean = $this->_enable_xss;
 
 		// If $index is NULL, it means that the whole $array is requested
+        // $index = NULL 表示获取所有
 		isset($index) OR $index = array_keys($array);
 
 		// allow fetching multiple keys at once
+        // 如果Index是数组则单独获取一次
 		if (is_array($index))
 		{
 			$output = array();
@@ -206,6 +208,7 @@ class CI_Input {
 		}
 		elseif (($count = preg_match_all('/(?:^[^\[]+)|\[[^]]*\]/', $index, $matches)) > 1) // Does the index contain array notation
 		{
+		    // '/(?:^[^\[]+)|\[[^]]*\]/' 待确认
 			$value = $array;
 			for ($i = 0; $i < $count; $i++)
 			{
@@ -470,6 +473,7 @@ class CI_Input {
 					// e.g. client_ip, proxy_ip1, proxy_ip2, etc.
 					sscanf($spoof, '%[^,]', $spoof);
 
+					// 非ipv4/ipv6则返回false
 					if ( ! $this->valid_ip($spoof))
 					{
 						$spoof = NULL;
@@ -500,6 +504,8 @@ class CI_Input {
 					}
 
 					// We have a subnet ... now the heavy lifting begins
+                    // ipv6:    xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx
+                    // ipv4:    10.120.78.40
 					isset($separator) OR $separator = $this->valid_ip($this->ip_address, 'ipv6') ? ':' : '.';
 
 					// If the proxy entry doesn't match the IP protocol - skip it
@@ -509,11 +515,18 @@ class CI_Input {
 					}
 
 					// Convert the REMOTE_ADDR IP address to binary, if needed
+                    // isset()只有在$ip, $sprintf全部设置时才返回true，这里返回的是false，因为$ip $sprintf未被设置
 					if ( ! isset($ip, $sprintf))
 					{
+					    // : 表示IPv6
 						if ($separator === ':')
 						{
 							// Make sure we're have the "full" IPv6 format
+                            /**
+                             *  str_repeat() 重复一个字符串
+                             *  substr_count() 计算字符串出现次数
+                             *  :: 表示0位压缩，比如FF01::1101表示FF01:0:0:0:0:0:0:1101
+                             */
 							$ip = explode(':',
 								str_replace('::',
 									str_repeat(':', 9 - substr_count($this->ip_address, ':')),
@@ -534,10 +547,12 @@ class CI_Input {
 							$sprintf = '%08b%08b%08b%08b';
 						}
 
+						// vsprintf(): 返回格式化字符串
 						$ip = vsprintf($sprintf, $ip);
 					}
 
 					// Split the netmask length off the network address
+                    // sscanf根据format将$proxy_ips[$i]格式化为$netaddr和$masklen
 					sscanf($proxy_ips[$i], '%[^/]/%d', $netaddr, $masklen);
 
 					// Again, an IPv6 address is most likely in a compressed form
@@ -596,6 +611,12 @@ class CI_Input {
 				break;
 		}
 
+        /**
+         * filter_var(): 使用特定的过滤器过滤一个变量
+         * $ip: 待过滤的变量。注意：标量的值在过滤前，会被转换成字符串。
+         * FILTER_VALIDATE_IP: validate ip,詳見https://www.php.net/manual/zh/filter.filters.validate.php
+         * $witch: 一个选项的关联数组，或者按位区分的标示。如果过滤器接受选项，可以通过数组的 "flags" 位去提供这些标示。
+         */
 		return (bool) filter_var($ip, FILTER_VALIDATE_IP, $which);
 	}
 
@@ -603,7 +624,7 @@ class CI_Input {
 
 	/**
 	 * Fetch User Agent string
-	 *
+	 * HTTP_USER_AGENT: 获取用户的所有信息， 比如，Mozilla/5.0 平台操作系统（包括版本号） 引擎版本  浏览器（包括版本号）
 	 * @return	string|null	User Agent string or NULL if it doesn't exist
 	 */
 	public function user_agent($xss_clean = NULL)
@@ -633,19 +654,50 @@ class CI_Input {
 		}
 		elseif (is_array($_GET))
 		{
+		    // ?k=aa&v=bb&**(*=$%##
+            /**
+             * $_GET = [
+             *      'k' => string 'aa' (length=2)
+             *      'v' => string 'bb' (length=2)
+             *      '**(*' => string '$%' (length=2)
+             * ]
+             */
 			foreach ($_GET as $key => $val)
 			{
 				$_GET[$this->_clean_input_keys($key)] = $this->_clean_input_data($val);
 			}
+			/**
+             * $_GET = [
+             *      'k' => string 'aa'
+             *      'v' => string 'bb'
+             *      '**(*' => string '$%'
+             *      0 => string '$%'
+             * ]
+             */
 		}
 
 		// Clean $_POST Data
 		if (is_array($_POST))
 		{
+            /**
+             * $_POST  = [
+             *      'k' => string 'aa'
+             *      'v' => string 'bb'
+             *      '**(*' => string '$%##'
+             * ]
+             */
 			foreach ($_POST as $key => $val)
 			{
 				$_POST[$this->_clean_input_keys($key)] = $this->_clean_input_data($val);
 			}
+			/**
+             *  $POST = [
+             *      'k' => string 'aa'
+             *      'v' => string 'bb'
+             *      '**(*' => string '$%##'
+             *      0 => string '$%##'
+             * ]
+             */
 		}
 
 		// Clean $_COOKIE Data
@@ -662,6 +714,7 @@ class CI_Input {
 				$_COOKIE['$Domain']
 			);
 
+			// $_COOKIE 的话不符合的key直接删掉
 			foreach ($_COOKIE as $key => $val)
 			{
 				if (($cookie_key = $this->_clean_input_keys($key)) !== FALSE)
@@ -676,6 +729,7 @@ class CI_Input {
 		}
 
 		// Sanitize PHP_SELF
+        // strip_tags(): 去除 HTML 和 PHP 标记
 		$_SERVER['PHP_SELF'] = strip_tags($_SERVER['PHP_SELF']);
 
 		log_message('debug', 'Global POST, GET and COOKIE data sanitized');
@@ -694,6 +748,7 @@ class CI_Input {
 	 */
 	protected function _clean_input_data($str)
 	{
+	    // 如果$str是个数组，则对数组的键和值进行过滤
 		if (is_array($str))
 		{
 			$new_array = array();
@@ -708,9 +763,13 @@ class CI_Input {
 
 		   NOTE: In PHP 5.4 get_magic_quotes_gpc() will always return 0 and
 		         it will probably not exist in future versions at all.
+		5.4.0開始 魔术引号功能从PHP中移除！
+		小于5.4的版本如果magic_quotes_gpc的配置选项开启则反引用一个引用字符串
 		*/
 		if ( ! is_php('5.4') && get_magic_quotes_gpc())
 		{
+		    // stripslashes(): 返回一个去除转义反斜线后的字符串（\' 转换为 ' 等等）。
+            //                  双反斜线（\\）被转换为单个反斜线（\）。
 			$str = stripslashes($str);
 		}
 
@@ -720,10 +779,10 @@ class CI_Input {
 			$str = $this->uni->clean_string($str);
 		}
 
-		// Remove control characters
+		// Remove control characters 删除不可见字符
 		$str = remove_invisible_characters($str, FALSE);
 
-		// Standardize newlines if needed
+		// Standardize newlines if needed 默认不进行替换，参考$config['standardize_newlines']
 		if ($this->_standardize_newlines === TRUE)
 		{
 			return preg_replace('/(?:\r\n|[\r\n])/', PHP_EOL, $str);
@@ -821,7 +880,7 @@ class CI_Input {
 	 * Get Request Header
 	 *
 	 * Returns the value of a single member of the headers class member
-	 *
+	 * 获取指定头信息
 	 * @param	string		$index		Header name
 	 * @param	bool		$xss_clean	Whether to apply XSS filtering
 	 * @return	string|null	The requested header on success or NULL on failure
@@ -830,6 +889,7 @@ class CI_Input {
 	{
 		static $headers;
 
+		// 如果未定义$headers则定义并赋值头信息
 		if ( ! isset($headers))
 		{
 			empty($this->headers) && $this->request_headers();
@@ -841,11 +901,13 @@ class CI_Input {
 
 		$index = strtolower($index);
 
+		// 没有则返回NULL
 		if ( ! isset($headers[$index]))
 		{
 			return NULL;
 		}
 
+		// 如果存在则返回对应的值，当然根据需求进行xss滤波
 		return ($xss_clean === TRUE)
 			? $this->security->xss_clean($headers[$index])
 			: $headers[$index];
@@ -904,7 +966,7 @@ class CI_Input {
 	 * Magic __get()
 	 *
 	 * Allows read access to protected properties
-	 *
+	 * 最后定义了一个魔术方法，用来获取受保护属性
 	 * @param	string	$name
 	 * @return	mixed
 	 */

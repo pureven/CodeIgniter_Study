@@ -26,6 +26,6 @@ class Test extends CI_Controller
 
     public function hello()
     {
-        var_dump(__METHOD__);
+        var_dump($this->input->get());var_dump(__METHOD__);
     }
 }
