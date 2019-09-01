@@ -24,8 +24,15 @@ class Test extends CI_Controller
         var_dump('message');exit();
     }
 
-    public function hello()
+    public function lang()
     {
-        var_dump($this->input->get());var_dump(__METHOD__);
+        /*$LANG = & load_class('Lang', 'core');
+        $LANG->load('test', 'zh_cn');
+        var_dump($LANG->line('test.successful'));*/
+
+        // 辅助函数 language_helper.php
+        $this->load->helper('language');
+        $this->lang->load('test', 'zh_cn');
+        var_dump(lang('test.successful'));
     }
 }
