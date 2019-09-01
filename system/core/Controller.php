@@ -65,16 +65,35 @@ class CI_Controller {
 	 */
 	public function __construct()
 	{
+	    // 单例模式
 		self::$instance =& $this;
 
 		// Assign all the class objects that were instantiated by the
 		// bootstrap file (CodeIgniter.php) to local class variables
 		// so that CI can run as one big super object.
+        /**
+         * is_loaded()函数返回已加载的类！！！
+         * var_dump(is_loaded()) = [
+         *      'benchmark' => string 'Benchmark' (length=9)
+         *      'hooks' => string 'Hooks' (length=5)
+         *      'config' => string 'Config' (length=6)
+         *      'log' => string 'Log' (length=3)
+         *      'utf8' => string 'Utf8' (length=4)
+         *      'uri' => string 'URI' (length=3)
+         *      'router' => string 'Router' (length=6)
+         *      'output' => string 'Output' (length=6)
+         *      'security' => string 'Security' (length=8)
+         *      'input' => string 'Input' (length=5)
+         *      'lang' => string 'Lang' (length=4)
+         * ]
+         */
 		foreach (is_loaded() as $var => $class)
 		{
+		    // $this->input = & load_class('Input'); 以后就可以直接使用$this->input->get_request_header('Accept-Encoding');
 			$this->$var =& load_class($class);
 		}
 
+		// 以后可以直接使用$this->load->library/model/helper......
 		$this->load =& load_class('Loader', 'core');
 		$this->load->initialize();
 		log_message('info', 'Controller Class Initialized');

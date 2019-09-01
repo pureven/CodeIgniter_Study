@@ -56,7 +56,7 @@ class CI_Loader {
 	 *
 	 * @var	int
 	 */
-	protected $_ci_ob_level;
+	protected $_ci_ob_level; // 缓冲机制的嵌套级别
 
 	/**
 	 * List of paths to load views from
@@ -95,7 +95,7 @@ class CI_Loader {
 
 	/**
 	 * List of loaded classes
-	 *
+	 * 存放已加载的类
 	 * @var	array
 	 */
 	protected $_ci_classes =	array();
@@ -135,7 +135,10 @@ class CI_Loader {
 	 */
 	public function __construct()
 	{
+	    // ob_get_level(): 输出缓冲机制的嵌套级别
 		$this->_ci_ob_level = ob_get_level();
+
+		// is_loaded(): 返回已加载的类，此处完成交接，此处_ci_classes也用来保管
 		$this->_ci_classes =& is_loaded();
 
 		log_message('info', 'Loader Class Initialized');
