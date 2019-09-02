@@ -125,9 +125,16 @@ class CI_Config {
 	 */
 	public function load($file = '', $use_sections = FALSE, $fail_gracefully = FALSE)
 	{
+	    // 这个地方$file有没有.php是一样的，因为即使有也会被去掉
 		$file = ($file === '') ? 'config' : str_replace('.php', '', $file);
 		$loaded = FALSE;
 
+        /**
+         *  $this->_config_paths = [
+         *      0 => string 'G:\wamp\www\CodeIgniter_hmvc\application\' (length=41)
+         *      1 => string 'G:\wamp\www\CodeIgniter_hmvc\application\third_party/MX/' (length=56)
+         *  ]
+         */
 		foreach ($this->_config_paths as $path)
 		{
 			foreach (array($file, ENVIRONMENT.DIRECTORY_SEPARATOR.$file) as $location)

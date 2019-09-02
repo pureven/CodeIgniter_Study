@@ -154,6 +154,7 @@ class CI_Loader {
 	 * @uses	CI_Loader::_ci_autoloader()
 	 * @used-by	CI_Controller::__construct()
 	 * @return	void
+     * 在Controller.php中调用
 	 */
 	public function initialize()
 	{
@@ -706,6 +707,7 @@ class CI_Loader {
 	 */
 	public function config($file, $use_sections = FALSE, $fail_gracefully = FALSE)
 	{
+	    // 调的是CI_Config类中的load()方法
 		return get_instance()->config->load($file, $use_sections, $fail_gracefully);
 	}
 
@@ -782,14 +784,17 @@ class CI_Loader {
 	public function add_package_path($path, $view_cascade = TRUE)
 	{
 		$path = rtrim($path, '/').'/';
+		// $path = 'G:\wamp\www\CodeIgniter_hmvc\application\third_party/MX/'
 
+        // 将$path分别加入到_ci_library_paths/_ci_model_paths/_ci_helper_paths中
 		array_unshift($this->_ci_library_paths, $path);
 		array_unshift($this->_ci_model_paths, $path);
 		array_unshift($this->_ci_helper_paths, $path);
 
+		// 两个数组相加：如果键名为字符，且键名相同，数组相加会将最先出现的值作为结果
 		$this->_ci_view_paths = array($path.'views/' => $view_cascade) + $this->_ci_view_paths;
 
-		// Add config file path
+		// Add config file path 加载MX_Config, 即(& get_instance())->config;
 		$config =& $this->_ci_get_component('config');
 		$config->_config_paths[] = $path;
 
@@ -1300,16 +1305,32 @@ class CI_Loader {
 	 */
 	protected function _ci_autoloader()
 	{
+	    // include G:\wamp\www\CodeIgniter_hmvc\application\config/autoload.php
 		if (file_exists(APPPATH.'config/autoload.php'))
 		{
 			include(APPPATH.'config/autoload.php');
 		}
 
+		// include G:\wamp\www\CodeIgniter_hmvc\application\config/development/autoload.php
 		if (file_exists(APPPATH.'config/'.ENVIRONMENT.'/autoload.php'))
 		{
 			include(APPPATH.'config/'.ENVIRONMENT.'/autoload.php');
 		}
 
+        /**
+         * 如果需要自动加载的文件，提前写入autoload.php,比如My_class.php
+         * $autoload = [
+         *      'packages' => [],
+         *      'libraries' => [
+         *          0 => string 'my_class' (length=8)
+         *      ],
+         *      'drivers' => [],
+         *      'helper' => [],
+         *      'config' => [],
+         *      'language' => [],
+         *      'model' => [],
+         * ]
+         */
 		if ( ! isset($autoload))
 		{
 			return;
@@ -1327,6 +1348,11 @@ class CI_Loader {
 		// Load any custom config file
 		if (count($autoload['config']) > 0)
 		{
+            /**
+             * $autoload['config'] = [
+             *      0 => string 'codeigniter'
+             * ]
+             */
 			foreach ($autoload['config'] as $val)
 			{
 				$this->config($val);
