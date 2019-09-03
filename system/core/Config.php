@@ -139,6 +139,7 @@ class CI_Config {
 		{
 			foreach (array($file, ENVIRONMENT.DIRECTORY_SEPARATOR.$file) as $location)
 			{
+			    // 'G:\wamp\www\CodeIgniter_hmvc\application\config/codeigniter.php'
 				$file_path = $path.'config/'.$location.'.php';
 				if (in_array($file_path, $this->is_loaded, TRUE))
 				{
@@ -152,6 +153,7 @@ class CI_Config {
 
 				include($file_path);
 
+				// $file_path 是config文件，里面会有一个$config数组
 				if ( ! isset($config) OR ! is_array($config))
 				{
 					if ($fail_gracefully === TRUE)
@@ -164,6 +166,7 @@ class CI_Config {
 
 				if ($use_sections === TRUE)
 				{
+				    // 如果$use_section为true就用新加载的，默认是false
 					$this->config[$file] = isset($this->config[$file])
 						? array_merge($this->config[$file], $config)
 						: $config;
@@ -173,6 +176,11 @@ class CI_Config {
 					$this->config = array_merge($this->config, $config);
 				}
 
+                /**
+                 * $this->is_loaded[] = [
+                 *      0 => string 'G:\wamp\www\CodeIgniter_hmvc\application\config/codeigniter.php' (length=63)
+                 * ]
+                 */
 				$this->is_loaded[] = $file_path;
 				$config = NULL;
 				$loaded = TRUE;

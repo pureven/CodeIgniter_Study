@@ -595,6 +595,7 @@ class CI_Loader {
 	 */
 	public function helper($helpers = array())
 	{
+	    // $helpers = 'array',这里为啥不是一个数组呢？因为首先调的是MX目录下的Loader类，这里是作为父类使用的
 		is_array($helpers) OR $helpers = array($helpers);
 		foreach ($helpers as &$helper)
 		{
@@ -1355,6 +1356,7 @@ class CI_Loader {
              */
 			foreach ($autoload['config'] as $val)
 			{
+			    // $this->config('codeigniter');
 				$this->config($val);
 			}
 		}
@@ -1364,6 +1366,12 @@ class CI_Loader {
 		{
 			if (isset($autoload[$type]) && count($autoload[$type]) > 0)
 			{
+                /**
+                 * $autoload['helper'] = [
+                 *      0 => string 'array' (length=5)
+                 *      1 => string 'language' (length=8)
+                 * ]
+                 */
 				$this->$type($autoload[$type]);
 			}
 		}
