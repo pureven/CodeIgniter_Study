@@ -144,8 +144,8 @@ class Modules
 	/** Load a module file **/
 	public static function load_file($file, $path, $type = 'other', $result = TRUE)	
 	{
-		$file = str_replace(EXT, '', $file);		
-		$location = $path.$file.EXT;
+		$file = str_replace(EXT, '', $file);	// 出去扩展名
+		$location = $path.$file.EXT; // 比如：'G:\wamp\www\CodeIgniter_hmvc\application\modules/test/helpers/array_helper.php'
 		
 		if ($type === 'other') 
 		{			
@@ -178,24 +178,39 @@ class Modules
 	**/
 	public static function find($file, $module, $base) 
 	{
+        /**
+         * 当URI = http://localhost:58080/CodeIgniter_hmvc/index.php/test/lang时，最开始传入的参数是
+         *  $file = routes
+         *  $module = test
+         *  $base = config/
+         */
 		$segments = explode('/', $file);
 
-		$file = array_pop($segments);
-		$file_ext = (pathinfo($file, PATHINFO_EXTENSION)) ? $file : $file.EXT;
-		
+		$file = array_pop($segments);// 执行后 $segments变为空
+		$file_ext = (pathinfo($file, PATHINFO_EXTENSION)) ? $file : $file.EXT; // 作用是确保有扩展名
+
 		$path = ltrim(implode('/', $segments).'/', '/');	
-		$module ? $modules[$module] = $path : $modules = array();
-		
+		$module ? $modules[$module] = $path : $modules = array(); // $modules['test'] = '';
+
 		if ( ! empty($segments)) 
 		{
+		    // 待测试
 			$modules[array_shift($segments)] = ltrim(implode('/', $segments).'/','/');
-		}	
+		}
 
+        /**
+         * Modules::$locations = [
+         *       'G:\wamp\www\CodeIgniter_hmvc\application\modules/' => string '../modules/' (length=11)
+         * ],
+         *  $modules = [
+         *      'test' => ''
+         * ]
+         */
 		foreach (Modules::$locations as $location => $offset) 
 		{					
 			foreach($modules as $module => $subpath) 
 			{			
-				$fullpath = $location.$module.'/'.$base.$subpath;
+				$fullpath = $location.$module.'/'.$base.$subpath; // $base = 'config/';
 				
 				if ($base == 'libraries/' OR $base == 'models/')
 				{

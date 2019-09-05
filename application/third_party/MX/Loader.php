@@ -118,12 +118,19 @@ class MX_Loader extends CI_Loader
 
 		if (isset($this->_ci_helpers[$helper]))	return;
 
+		// 首先在test中寻找array_helper
 		list($path, $_helper) = Modules::find($helper.'_helper', $this->_module, 'helpers/');
-
-		if ($path === FALSE) return parent::helper($helper);
+        /**
+         *  $helper = 'array' (length=5)
+         *  $path = false
+         *  $_helper = 'array_helper' (length=12)
+         *  当uri = http://localhost:58080/CodeIgniter_hmvc/index.php/test/lang时，如果test/helpers/array_helper.php存在时则
+         *  $path = 'G:\wamp\www\CodeIgniter_hmvc\application\modules/test/helpers/' (length=62)
+         */
+		if ($path === FALSE) return parent::helper($helper); // 找不到就去调system/core/Loader.php
 
 		Modules::load_file($_helper, $path);
-		$this->_ci_helpers[$_helper] = TRUE;
+		$this->_ci_helpers[$_helper] = TRUE; // $this->_ci_helpers['array_helper'] = true;
 		return $this;
 	}
 

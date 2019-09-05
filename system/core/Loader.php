@@ -596,13 +596,13 @@ class CI_Loader {
 	 */
 	public function helper($helpers = array())
 	{
-	    // $helpers = 'array',这里为啥不是一个数组呢？因为首先调的是MX目录下的Loader类，这里是作为父类使用的
-		is_array($helpers) OR $helpers = array($helpers);
+	    // $helpers = 'array',这里为啥不是一个数组呢？因为首先调的是MX目录下的Loader类，这里是作为父类使用的，一个一个的传入
+		is_array($helpers) OR $helpers = array($helpers);// 就算是单个传入这里也编程数组
 		foreach ($helpers as &$helper)
 		{
 			$filename = basename($helper);
 			$filepath = ($filename === $helper) ? '' : substr($helper, 0, strlen($helper) - strlen($filename));
-			$filename = strtolower(preg_replace('#(_helper)?(\.php)?$#i', '', $filename)).'_helper';
+			$filename = strtolower(preg_replace('#(_helper)?(\.php)?$#i', '', $filename)).'_helper';// 加后缀 _helper,比如 array_helper
 			$helper   = $filepath.$filename;
 
 			if (isset($this->_ci_helpers[$helper]))
@@ -611,7 +611,7 @@ class CI_Loader {
 			}
 
 			// Is this a helper extension request?
-			$ext_helper = config_item('subclass_prefix').$filename;
+			$ext_helper = config_item('subclass_prefix').$filename; // $ext_helper = 'MY_array_helper'
 			$ext_loaded = FALSE;
 			foreach ($this->_ci_helper_paths as $path)
 			{
@@ -1351,6 +1351,11 @@ class CI_Loader {
 		}
 
 		// Autoload packages
+        /**
+         * $autoload['packages'] = [
+         *      0 => string 'G:\wamp\www\CodeIgniter_hmvc\application\third_party/MX' (length=55)
+         * ]
+         */
 		if (isset($autoload['packages']))
 		{
 			foreach ($autoload['packages'] as $package_path)
@@ -1359,7 +1364,7 @@ class CI_Loader {
 			}
 		}
 
-		// Load any custom config file
+		// Load any custom config file 加载autoload.php中配置的config文件，即$autoload['config'] = array('codeigniter');
 		if (count($autoload['config']) > 0)
 		{
             /**
