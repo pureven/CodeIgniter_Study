@@ -175,6 +175,7 @@ class CI_Loader {
 	 */
 	public function is_loaded($class)
 	{
+        // 若加载了返回类名或者指定的名称，未加载则返回false
 		return array_search(ucfirst($class), $this->_ci_classes, TRUE);
 	}
 
@@ -1027,10 +1028,12 @@ class CI_Loader {
 		// Get the class name, and while we're at it trim any slashes.
 		// The directory path can be included as part of the class name,
 		// but we don't want a leading slash
+        // 若$class字符串中存在.php，去掉。。。
 		$class = str_replace('.php', '', trim($class, '/'));
 
 		// Was the path included with the class name?
 		// We look for a slash to determine this
+        // $class收尾去掉/后发现还有/就说明在子目录下了，这时要获取子目录
 		if (($last_slash = strrpos($class, '/')) !== FALSE)
 		{
 			// Extract the path
@@ -1044,9 +1047,11 @@ class CI_Loader {
 			$subdir = '';
 		}
 
+        // 类名首字符大写，这里再给格式化下
 		$class = ucfirst($class);
 
 		// Is this a stock library? There are a few special conditions if so ...
+        // BASEPATH.'libraries/'.$subdir.$class.'.php' = 'G:\wamp\www\CodeIgniter_hmvc\system\libraries/My_class.php'
 		if (file_exists(BASEPATH.'libraries/'.$subdir.$class.'.php'))
 		{
 			return $this->_ci_load_stock_library($class, $subdir, $params, $object_name);
@@ -1119,10 +1124,18 @@ class CI_Loader {
 	 */
 	protected function _ci_load_stock_library($library_name, $file_path, $params, $object_name)
 	{
+        /**
+         * 比如参数可能是：
+         * $library_name = "Xmlrpc"
+         * $file_path = ''
+         * $params = [ 'xss_clean' => false, 'debug' => false]
+         * $object_name = NULL
+         */
 		$prefix = 'CI_';
 
 		if (class_exists($prefix.$library_name, FALSE))
 		{
+		    // 若一定义MY_Xmlrpc类, 则加载此类
 			if (class_exists(config_item('subclass_prefix').$library_name, FALSE))
 			{
 				$prefix = config_item('subclass_prefix');
