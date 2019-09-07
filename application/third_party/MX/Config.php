@@ -40,8 +40,8 @@ class MX_Config extends CI_Config
 		if (in_array($file, $this->is_loaded, TRUE)) return $this->item($file);
 
 		$_module OR $_module = CI::$APP->router->fetch_module();
-		list($path, $file) = Modules::find($file, $_module, 'config/');
-		
+		list($path, $file) = Modules::find($file, $_module, 'config/'); // 看看模块下面的config目录下有没有改文件，有的话加载
+
 		if ($path === FALSE)
 		{
 			parent::load($file, $use_sections, $fail_gracefully);					

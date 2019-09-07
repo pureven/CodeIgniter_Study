@@ -623,6 +623,7 @@ class CI_Loader {
 			}
 
 			// If we have loaded extensions - check if the base one is here
+            // 这里的意思是如果MY_array_helper.php存在但是array_helper.php不存在则报错
 			if ($ext_loaded === TRUE)
 			{
 				$base_helper = BASEPATH.'helpers/'.$helper.'.php';
@@ -638,6 +639,7 @@ class CI_Loader {
 			}
 
 			// No extensions found ... try loading regular helpers and/or overrides
+            // 没找到MY_array_helper.php,则加载array_helper.php
 			foreach ($this->_ci_helper_paths as $path)
 			{
 				if (file_exists($path.'helpers/'.$helper.'.php'))
@@ -651,6 +653,7 @@ class CI_Loader {
 			}
 
 			// unable to load the helper
+            // 没加载成功则报错
 			if ( ! isset($this->_ci_helpers[$helper]))
 			{
 				show_error('Unable to load the requested file: helpers/'.$helper.'.php');
@@ -789,6 +792,7 @@ class CI_Loader {
 		// $path = 'G:\wamp\www\CodeIgniter_hmvc\application\third_party/MX/'
 
         // 将$path分别加入到_ci_library_paths/_ci_model_paths/_ci_helper_paths中
+        // array_unshift()的作用是开头加入，后面foreach的时候也是先判断这个目录下有没有，因为自定义的文件通常继承core里的类
 		array_unshift($this->_ci_library_paths, $path);
 		array_unshift($this->_ci_model_paths, $path);
 		array_unshift($this->_ci_helper_paths, $path);
@@ -1060,6 +1064,7 @@ class CI_Loader {
 		// Safety: Was the class already loaded by a previous call?
 		if (class_exists($class, FALSE))
 		{
+		    // 这里$property是类的别名，可能由于源类名太长另外指定一个名称来表示，如果没有单独指定则由源类名表示 $this->{$property}->...
 			$property = $object_name;
 			if (empty($property))
 			{
@@ -1080,7 +1085,7 @@ class CI_Loader {
 		// Let's search for the requested library file and load it.
 		foreach ($this->_ci_library_paths as $path)
 		{
-			// BASEPATH has already been checked for
+			// BASEPATH has already been checked for // if (file_exists(BASEPATH.'libraries/'.$subdir.$class.'.php'))...
 			if ($path === BASEPATH)
 			{
 				continue;
@@ -1093,13 +1098,15 @@ class CI_Loader {
 				continue;
 			}
 
+			// $filepath = 'G:\wamp\www\CodeIgniter_hmvc\application\libraries/My_class.php'
 			include_once($filepath);
 			return $this->_ci_init_library($class, '', $params, $object_name);
 		}
 
-		// One last attempt. Maybe the library is in a subdirectory, but it wasn't specified?
+		// One last attempt. Maybe the library is in a subdirectory, but it wasn't specified? 最后的努力，当成子目录来尝试加载
 		if ($subdir === '')
 		{
+		    // $this->_ci_load_library('My_class/My_class', null, null); 其实前面就已经返回了，这个值是前面打印出来的。。。
 			return $this->_ci_load_library($class.'/'.$class, $params, $object_name);
 		}
 
@@ -1223,7 +1230,7 @@ class CI_Loader {
 		if ($config === NULL)
 		{
 			// Fetch the config paths containing any package paths
-			$config_component = $this->_ci_get_component('config');
+			$config_component = $this->_ci_get_component('config');// 返回的是MX_Config
 
 			if (is_array($config_component->_config_paths))
 			{
@@ -1233,6 +1240,11 @@ class CI_Loader {
 					// We test for both uppercase and lowercase, for servers that
 					// are case-sensitive with regard to file names. Load global first,
 					// override with environment next
+                    /**
+                     * 在config目录下寻找library...
+                     * $path.'config/'.strtolower($class).'.php' = 'G:\wamp\www\CodeIgniter_hmvc\application\config/my_class.php';
+                     * $path.'config/'.ucfirst(strtolower($class)).'.php' = 'G:\wamp\www\CodeIgniter_hmvc\application\config/My_class.php'
+                     */
 					if (file_exists($path.'config/'.strtolower($class).'.php'))
 					{
 						include($path.'config/'.strtolower($class).'.php');
@@ -1301,7 +1313,7 @@ class CI_Loader {
 		// Save the class name and object name
 		$this->_ci_classes[$object_name] = $class;
 
-		// Instantiate the class
+		// Instantiate the class 实例化类，这一步很关键，完成最后的加载， $CI->my_class = new My_class();
 		$CI->$object_name = isset($config)
 			? new $class_name($config)
 			: new $class_name();
@@ -1403,10 +1415,12 @@ class CI_Loader {
 		// Load libraries
 		if (isset($autoload['libraries']) && count($autoload['libraries']) > 0)
 		{
-			// Load the database driver.
+			// Load the database driver. 此处是指初始化时就加载数据库
 			if (in_array('database', $autoload['libraries']))
 			{
+			    // 加载DB类，只有加载了才能使用$this->db->...
 				$this->database();
+				// 返回不包含'database'的数组
 				$autoload['libraries'] = array_diff($autoload['libraries'], array('database'));
 			}
 

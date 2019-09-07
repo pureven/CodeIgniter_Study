@@ -181,10 +181,10 @@ class MX_Loader extends CI_Loader
 		}
 		else
 		{
-			Modules::load_file($_library, $path);
+			Modules::load_file($_library, $path); // include or include_once
 
 			$library = ucfirst($_library);
-			CI::$APP->$_alias = new $library($params);
+			CI::$APP->$_alias = new $library($params); // Instantiate the class
 
 			$this->_ci_classes[$class] = $_alias;
 		}
