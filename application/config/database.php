@@ -70,16 +70,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | The $query_builder variables lets you determine whether or not to load
 | the query builder class.
 */
-$active_group = 'default';
-$query_builder = TRUE;
+$active_group = 'codeigniter'; // 告訴系统要使用codeigniter数据库
+$query_builder = TRUE;          // 数据库初始化时对查询构造器类进行全局设定
 
 $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
 	'port' => 3306,
-	'username' => 'codeigniter',
-	'password' => 'helloworld',
-	'database' => 'codeigniter',
+	'username' => 'root',
+	'password' => 'root',
+	'database' => '',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
@@ -94,4 +94,26 @@ $db['default'] = array(
 	'stricton' => FALSE,
 	'failover' => array(),
 	'save_queries' => TRUE
+);
+$db['codeigniter'] = array(
+    'dsn'	=> '',                 // DNS连接字符串（该字符串包含了所有的数据库配置信息）
+    'hostname' => 'localhost',  // 数据库的主机名
+    'port' => 3306,               // 数据库端口号
+    'username' => 'codeigniter',// 需要连接到数据库的用户名
+    'password' => 'helloworld', // 登录数据库的密码
+    'database' => 'codeigniter',// 需要连接的数据库名
+    'dbdriver' => 'mysqli',      // 数据库类型: mysqli postgres odbc
+    'dbprefix' => '',     // 当使用查询构造器查询时，可以选择性的为表加个前缀
+    'pconnect' => FALSE,  // 是否使用持续连接
+    'db_debug' => (ENVIRONMENT !== 'production'), // 是否显示数据库错误信息
+    'cache_on' => FALSE, // 是否开启数据库查询缓存
+    'cachedir' => '',    // 数据库查询缓存目录所在服务器的绝对路径
+    'char_set' => 'utf8',// 与数据库通信时所使用的字符集
+    'dbcollat' => 'utf8_general_ci',// 只是用与mysql和mysqli数据库驱动
+    'swap_pre' => '',   // 替换默认的 dbprefix 表前缀，该项设置对于分布式应用是非常有用的， 可以在查询中使用由最终用户定制的表前缀。
+    'encrypt' => FALSE,// 是否使用加密连接
+    'compress' => FALSE,// 是否使用客户端压缩协议（只用于MySQL）
+    'stricton' => FALSE,// 是否强制使用 "Strict Mode" 连接, 在开发程序时，使用 strict SQL 是一个好习惯。
+    'failover' => array(),
+    'save_queries' => TRUE
 );

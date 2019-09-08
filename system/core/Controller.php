@@ -95,7 +95,7 @@ class CI_Controller {
 
 		// 以后可以直接使用$this->load->library/model/helper......
 		$this->load =& load_class('Loader', 'core');
-		$this->load->initialize();
+		$this->load->initialize(); // 将autoload.php文件中设置的默认加载项加载了
 		log_message('info', 'Controller Class Initialized');
 	}
 

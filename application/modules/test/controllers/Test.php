@@ -7,7 +7,7 @@
  */
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Test extends CI_Controller
+class Test extends MX_Controller
 {
     public function __construct()
     {
@@ -34,5 +34,11 @@ class Test extends CI_Controller
         $this->load->helper('language');
         $this->lang->load('test', 'zh_cn');
         var_dump(lang('test.successful'));
+    }
+
+    public function database()
+    {
+        $this->load->model('test_model');
+        $this->test_model->get_list_by_query_sql();
     }
 }

@@ -476,11 +476,12 @@ if ( ! is_php('5.4'))
 	 *
 	 * @return CI_Controller
 	 */
-	function &get_instance()
+	function &get_instance() // 当自己写的类库里想使用CodeIgniter的方法或者属性是需要使用此引用函数，拒绝副本、单例模型
 	{
 		return CI_Controller::get_instance();
 	}
 
+	// 加载 'G:\wamp\www\CodeIgniter_hmvc\application\core/MY_Controller.php'
 	if (file_exists(APPPATH.'core/'.$CFG->config['subclass_prefix'].'Controller.php'))
 	{
 		require_once APPPATH.'core/'.$CFG->config['subclass_prefix'].'Controller.php';
@@ -528,6 +529,7 @@ if ( ! is_php('5.4'))
 		}
 		elseif (method_exists($class, '_remap'))
 		{
+		    // 使用_remap()传入的是$URI->rsegments，经过Router类处理之后的
 			$params = array($method, array_slice($URI->rsegments, 2));
 			$method = '_remap';
 		}
@@ -549,6 +551,7 @@ if ( ! is_php('5.4'))
 		elseif ( ! is_callable(array($class, $method)))
 		{
 			$reflection = new ReflectionMethod($class, $method);
+			// 请求的方法不能是构造方法，也须是公共方法才行
 			if ( ! $reflection->isPublic() OR $reflection->isConstructor())
 			{
 				$e404 = TRUE;
@@ -627,6 +630,7 @@ if ( ! is_php('5.4'))
 	// Mark a start point so we can benchmark the controller
 	$BM->mark('controller_execution_time_( '.$class.' / '.$method.' )_start');
 
+	// $CI = new Test();
 	$CI = new $class();
 
 /*
@@ -639,6 +643,7 @@ if ( ! is_php('5.4'))
 /*
  * ------------------------------------------------------
  *  Call the requested method
+ *  这里开始进入调的控制器中指定的方法里，业务逻辑开始出。
  * ------------------------------------------------------
  */
 	call_user_func_array(array(&$CI, $method), $params);
