@@ -18,10 +18,10 @@ class Test_model extends CI_Model
     public function get_list_by_query_sql()
     {
 
-        //$query = $this->db->query('select * from test;');
-        //var_dump($query);exit();
+        // $this->db: object CI_DB_mysqli_driver
+        $query = $this->db->query('select * from test;');
+        //$query = $this->db->get('test');
 
-        $query = $this->db->get('test');
         return $query->result_array();
     }
 

@@ -57,4 +57,5 @@ class CI extends CI_Controller
 }
 
 /* create the application object */
+// new CI執行后，CI::$APP的值即CI对象了，别的地方可以直接使用CI::$APP了，没有new CI会导致CI::APP为null
 new CI;
