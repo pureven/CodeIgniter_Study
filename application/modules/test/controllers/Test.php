@@ -11,6 +11,7 @@ class Test extends MX_Controller
 {
     public function __construct()
     {
+        log_message('debug','Test Controller Initialized');
         parent::__construct();
     }
 
@@ -59,6 +60,7 @@ class Test extends MX_Controller
      * INFO - 2019-09-09 14:07:08 --> Helper loaded: array_helper
      * INFO - 2019-09-09 14:07:08 --> Helper loaded: language_helper
      * INFO - 2019-09-09 14:07:08 --> Controller Class Initialized
+     * DEBUG - 2019-09-10 13:06:08 --> Test Controller Initialized
      * DEBUG - 2019-09-09 14:07:08 --> Test MX_Controller Initialized
      * INFO - 2019-09-09 14:07:08 --> Database Driver Class Initialized
      * INFO - 2019-09-09 14:07:08 --> Model "Test_model" initialized
@@ -70,5 +72,23 @@ class Test extends MX_Controller
         $this->load->model('test_model');
         $list = $this->test_model->get_list_by_query_sql();
         var_dump($list);
+    }
+
+    public function add()
+    {
+        $this->load->model('test_model');
+        $this->test_model->set_by_query_sql($this->input->get());
+    }
+
+    public function update()
+    {
+        $this->load->model('test_model');
+        $this->test_model->update_by_id($this->input->get());
+    }
+
+    public function delete()
+    {
+        $this->load->model('test_model');
+        $this->test_model->delete_by_id($this->input->get());
     }
 }
