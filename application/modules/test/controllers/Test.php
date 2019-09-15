@@ -76,14 +76,30 @@ class Test extends MX_Controller
 
     public function add()
     {
-        $this->load->model('test_model');
-        $this->test_model->set_by_query_sql($this->input->get());
+        $params = $this->input->get();
+        $this->load->library('form_validation');
+        $this->form_validation->set_data($params);// 使用数组设置验证规则，如果使用set_data()的话，须在定义任何验证规则之前调用
+        //$this->form_validation->set_rules('score', '分数', 'required',['required' => 'You must provide a %s.']);// 设置验证规则
+        if ($this->form_validation->run() === false) {
+            echo validation_errors();// 返回验证器返回的所有错误信息。如果没有错误信息，它将返回空字符串。
+        } else {
+            $this->load->model('test_model');
+            $this->test_model->set_by_query_sql($this->input->get());
+        }
     }
 
     public function update()
     {
-        $this->load->model('test_model');
-        $this->test_model->update_by_id($this->input->get());
+        $params = $this->input->get();
+        $this->load->library('form_validation');
+        $this->form_validation->set_data($params);
+
+        if ($this->form_validation->run() === false) {
+            echo validation_errors();
+        } else {
+            $this->load->model('test_model');
+            $this->test_model->update_by_id($this->input->get());
+        }
     }
 
     public function delete()
