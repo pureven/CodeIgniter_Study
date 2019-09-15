@@ -1180,6 +1180,8 @@ class XML_RPC_Message extends CI_Xmlrpc
 		}
 		$data = implode("\r\n", $lines);
 
+        $data = trim($data);// 去除两边空格
+
 		// Parse XML data
 		if ( ! xml_parse($parser, $data, TRUE))
 		{

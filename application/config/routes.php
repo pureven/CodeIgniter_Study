@@ -49,14 +49,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
-$route['default_controller'] = 'welcome';
+$route['default_controller'] = 'Welcome_default';
 $route['404_override'] = '';
 /* 从它的布尔值就能看出来这其实并不是一个路由，这个选项可以自动的将 URL 中的控制器和方法中的连字符（'-'）转换为下划线（'_'），当你需要这样时， 它可以让你少写很多路由规则。由于连字符不是一个有效的类名或方法名， 如果你不使用它的话，将会引起一个严重错误。 */
 $route['translate_uri_dashes'] = FALSE;
 
-$route['welcome']  = 'welcome/welcome_modules';
-$route['test/([a-zA-Z0-9-]+)']     = 'test/test/$1';
-$route['products/([a-zA-Z]+)/edit/(\d+)'] = function ($product_type, $id)
+$route['welcome']                                   = 'welcome/welcome_modules';
+$route['test/([a-zA-Z0-9-]+)']                    = 'test/test/$1';
+$route['products/([a-zA-Z]+)/edit/(\d+)']        = function ($product_type, $id)
 {
     return 'catalog/product_edit/' . strtolower($product_type) . '/' . $id;
 };
+$route['xmlrpc']                                     = 'xmlrpc_client';
+$route['xmlrpcs']                                    = 'xmlrpc_server';
+//$route['xmlrpcs(\/)(:any)']                         = 'xmlrpc_server/$2';
