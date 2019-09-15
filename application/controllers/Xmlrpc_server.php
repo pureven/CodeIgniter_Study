@@ -15,10 +15,10 @@ class Xmlrpc_server extends MX_Controller
         $this->load->library('xmlrpcs');
 
         $config['functions'] = [
-            'test_server' => ['function' => 'Xmlrpc_server.test'],
+            'test_server' => ['function' => 'Xmlrpc_server.test'],// test_server 是xmlrpc_client调用的方法，Xmlrpc_server.test是test_server的映射
         ];
 
-        $config['object'] = $this;
+        $config['object'] = $this; // 'object' 是个特殊的键，用于传递一个实例对象，当映射的方法无法使用 CodeIgniter 超级对象时，它将是必须的
 
         $this->xmlrpcs->initialize($config);
         $this->xmlrpcs->serve();
