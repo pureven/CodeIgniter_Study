@@ -25,7 +25,7 @@ $config = [
         [
             'field' => 'name',
             'label' => '名称',
-            'rules' => 'trim|required',
+            'rules' => 'required|trim',
             'errors' => [
                 'required' => 'You must provide a %s.',
             ],

@@ -97,8 +97,9 @@ class Test extends MX_Controller
         if ($this->form_validation->run() === false) {
             echo validation_errors();
         } else {
+            $params = $this->form_validation->get_validation_params($params);
             $this->load->model('test_model');
-            $this->test_model->update_by_id($this->input->get());
+            $this->test_model->update_by_id($params);
         }
     }
 
