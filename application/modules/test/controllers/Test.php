@@ -108,4 +108,10 @@ class Test extends MX_Controller
         $this->load->model('test_model');
         $this->test_model->delete_by_id($this->input->get());
     }
+
+    public function post()
+    {
+        $input = $this->input->post();
+        var_dump($input);
+    }
 }
