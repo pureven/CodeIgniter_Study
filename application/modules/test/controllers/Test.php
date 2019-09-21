@@ -114,22 +114,4 @@ class Test extends MX_Controller
         $input = $this->input->post();
         var_dump($input);
     }
-
-    public function migrate()
-    {
-        $rs = ['ret' => 200, 'msg' => '', 'data' => [
-            'code' => SUCCESSS,
-            'message' => 'Successfully updated to the latest version',
-
-        ]];
-        $this->load->library('migration');
-        if ($this->migration->current() === FALSE) {
-            $rs['data'] = [
-                'code' => FAILED,
-                'message' => $this->migration->error_string(),
-            ];
-        }
-        header('Content-Type:application/json');
-        echo json_encode($rs);
-    }
 }

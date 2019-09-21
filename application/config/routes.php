@@ -64,4 +64,4 @@ $route['xmlrpc']                                     = 'xmlrpc_client';
 $route['xmlrpcs']                                    = 'xmlrpc_server';
 //$route['xmlrpcs(\/)(:any)']                         = 'xmlrpc_server/$2';
 
-$route['migrate']                                    = 'test/test/migrate';
+$route['migrate']                                    = 'tools/migrate';
