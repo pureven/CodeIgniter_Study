@@ -74,6 +74,17 @@ class Test extends MX_Controller
         var_dump($list);
     }
 
+    public function get()
+    {
+        $this->load->model('test_model');
+        header('Content-Type:application/json');
+        echo json_encode([
+            'ret' => '200',
+            'msg' => '',
+            'data' => $this->test_model->get_list($this->input->get()),
+        ]);
+    }
+
     public function add()
     {
         $params = $this->input->get();

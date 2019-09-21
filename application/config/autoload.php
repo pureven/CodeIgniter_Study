@@ -58,7 +58,7 @@ $autoload['packages'] = array(APPPATH . 'third_party/MX');
 |
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
-$autoload['libraries'] = array('my_class');
+$autoload['libraries'] = array('my_class', 'database');
 
 /*
 | -------------------------------------------------------------------
