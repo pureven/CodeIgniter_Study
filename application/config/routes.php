@@ -55,7 +55,12 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 $route['welcome']                                   = 'welcome/welcome_modules';
+
 $route['test/([a-zA-Z0-9-]+)']                    = 'test/test/$1';
+
+$route['blog']                                      = 'blog/blog/index'; // post/get/delete
+$route['blog/([0-9]+)']                            = 'blog/blog/id/$1'; // put/get
+
 $route['products/([a-zA-Z]+)/edit/(\d+)']        = function ($product_type, $id)
 {
     return 'catalog/product_edit/' . strtolower($product_type) . '/' . $id;
