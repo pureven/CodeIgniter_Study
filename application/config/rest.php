@@ -94,7 +94,7 @@ $config['enable_emulate_request'] = TRUE;
 | e.g: My Secret REST API
 |
 */
-$config['rest_realm'] = 'REST API';
+$config['rest_realm'] = 'CodeIgniter REST API';
 
 /*
 |--------------------------------------------------------------------------
@@ -110,7 +110,7 @@ $config['rest_realm'] = 'REST API';
 |           authorization key
 |
 */
-$config['rest_auth'] = FALSE;
+$config['rest_auth'] = 'basic';
 
 /*
 |--------------------------------------------------------------------------
@@ -126,7 +126,7 @@ $config['rest_auth'] = FALSE;
 | Note: If 'rest_auth' is set to 'session' then change 'auth_source' to the name of the session variable
 |
 */
-$config['auth_source'] = 'ldap';
+$config['auth_source'] = '';
 
 /*
 |--------------------------------------------------------------------------
@@ -199,7 +199,7 @@ $config['auth_library_function'] = '';
 |            $config['auth_override_class_method_http']['deals']['insert']['post'] = 'none';
 |            $config['auth_override_class_method_http']['deals']['*']['options'] = 'none';
 */
-
+$config['auth_override_class_method']['auth']['token'] = 'none';
 // ---Uncomment list line for the wildard unit test
 // $config['auth_override_class_method_http']['wildcard_test_cases']['*']['options'] = 'basic';
 
@@ -211,7 +211,7 @@ $config['auth_library_function'] = '';
 | Array of usernames and passwords for login, if ldap is configured this is ignored
 |
 */
-$config['rest_valid_logins'] = ['admin' => '1234'];
+$config['rest_valid_logins'] = ['codeigniter' => 'codeigniter@codeigniter'];
 
 /*
 |--------------------------------------------------------------------------
@@ -289,7 +289,7 @@ $config['rest_ip_blacklist'] = '';
 | if you have any of these features enabled
 |
 */
-$config['rest_database_group'] = 'default';
+$config['rest_database_group'] = 'codeigniter';
 
 /*
 |--------------------------------------------------------------------------
@@ -324,7 +324,7 @@ $config['rest_keys_table'] = 'keys';
 |   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 |
 */
-$config['rest_enable_keys'] = FALSE;
+$config['rest_enable_keys'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -404,7 +404,7 @@ $config['rest_key_name'] = 'X-API-KEY';
 |   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 |
 */
-$config['rest_enable_logging'] = FALSE;
+$config['rest_enable_logging'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -534,7 +534,7 @@ $config['rest_ajax_only'] = FALSE;
 | Language file to load from the language directory
 |
 */
-$config['rest_language'] = 'english';
+$config['rest_language'] = 'simplified-chinese';
 
 /*
 |--------------------------------------------------------------------------

@@ -7,9 +7,9 @@
  */
 defined('BASEPATH') or exit("No direct script access allowed");
 
-include_once(APPPATH . 'libraries/REST_Controller.php');
+// include_once(APPPATH . 'libraries/REST_Controller.php');
 
-class Blog extends REST_Controller
+class Blog extends Api
 {
     public function __construct()
     {

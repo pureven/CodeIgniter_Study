@@ -15,7 +15,6 @@ class Blog_model extends MY_Model
     public function __construct()
     {
         parent::__construct();
-        $this->load->database();
     }
 
     public function add_blog($params)
