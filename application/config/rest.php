@@ -110,7 +110,7 @@ $config['rest_realm'] = 'CodeIgniter REST API';
 |           authorization key
 |
 */
-$config['rest_auth'] = 'basic';
+$config['rest_auth'] = false;
 
 /*
 |--------------------------------------------------------------------------
@@ -324,7 +324,7 @@ $config['rest_keys_table'] = 'keys';
 |   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 |
 */
-$config['rest_enable_keys'] = TRUE;
+$config['rest_enable_keys'] = false;
 
 /*
 |--------------------------------------------------------------------------
@@ -404,7 +404,7 @@ $config['rest_key_name'] = 'X-API-KEY';
 |   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 |
 */
-$config['rest_enable_logging'] = TRUE;
+$config['rest_enable_logging'] = false;
 
 /*
 |--------------------------------------------------------------------------

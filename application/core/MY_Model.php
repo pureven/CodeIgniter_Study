@@ -12,6 +12,7 @@ class MY_Model extends Base_Model
 {
     public function __construct()
     {
+        $this->load->database();
         parent::__construct();
     }
 }
