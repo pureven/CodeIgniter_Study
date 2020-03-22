@@ -91,5 +91,5 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
 |
 |
 */
-define('SUCCESSS', 0);
+define('SUCCESS', 0);
 define('FAILED', -1);

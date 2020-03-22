@@ -16,20 +16,19 @@ class Tools extends MX_Controller
 
     public function migrate()
     {
-        $rs = ['ret' => 200, 'msg' => '', 'data' => [
-            'code' => SUCCESSS,
-            'message' => 'Successfully updated to the latest version',
-
-        ]];
-        $this->load->library('migration');
-        if ($this->migration->current() === FALSE) {
-            $rs['data'] = [
-                'code' => FAILED,
-                'message' => $this->migration->error_string(),
-            ];
+        $rs = ['ret' => 200, 'msg' => '', 'data' => rs('Successfully updated to the latest version')];
+        $result = $this->__upgrade_db();
+        if (!$result) {
+            $rs['data'] = rs('Migration failed');
         }
         header('Content-Type:application/json');
         echo json_encode($rs);
+    }
+
+    private function __upgrade_db()
+    {
+        $this->load->library('migrate');
+        return $this->migrate->upgrade();
     }
 
 }

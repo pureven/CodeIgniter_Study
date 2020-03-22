@@ -78,8 +78,8 @@ $db['default'] = array(
 	'hostname' => 'localhost',
 	'port' => 3306,
 	'username' => 'root',
-	'password' => 'root',
-	'database' => '',
+	'password' => 'xxxxxx',
+	'database' => 'mysql',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
@@ -117,3 +117,7 @@ $db['codeigniter'] = array(
     'failover' => array(),
     'save_queries' => TRUE
 );
+
+$config['db_forge'] = 'default';
+$config['db_config_prod'] = $db['codeigniter'];
+$config['db_config_forge'] = $db[$config['db_forge']];
