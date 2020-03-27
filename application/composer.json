@@ -1,0 +1,20 @@
+{
+  "require": {
+    "monolog/monolog": "^1.23",
+    "phpmailer/phpmailer": "~6.1"
+  },
+  "autoload":{
+    "psr-4":{
+      "":"./libraries/xxx"
+    }
+  },
+  "config": {
+    "secure-http": false
+  },
+  "repositories": {
+    "packagist": {
+      "type": "composer",
+      "url": "https://mirrors.aliyun.com/composer/"
+    }
+  }
+}

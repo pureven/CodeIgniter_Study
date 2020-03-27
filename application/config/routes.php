@@ -70,3 +70,4 @@ $route['xmlrpcs']                                    = 'xmlrpc_server';
 //$route['xmlrpcs(\/)(:any)']                         = 'xmlrpc_server/$2';
 
 $route['migrate']                                    = 'tools/migrate';
+$route['notification/email_test']                   = 'notifications/email_test';
