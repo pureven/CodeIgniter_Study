@@ -24,7 +24,7 @@ class Blog extends Api
         $result = $this->blog_model->add_blog($input); // 成功返回true
 
         $this->response([
-            'ret' => SUCCESS,
+            'ret' => REST_Controller::HTTP_OK,
             'msg' => '',
             'data' => [
                 'code' => SUCCESS,
@@ -41,9 +41,14 @@ class Blog extends Api
         $result = $this->blog_model->get_list($limit, $page);
 
         $this->response([
-            'ret' => SUCCESS,
+            'ret' => REST_Controller::HTTP_OK,
             'msg' => '',
-            'data' => $result,
+            'data' => [
+                'code' => SUCCESS,
+                'message' => '',
+                'total' => $result['total'],
+                'list' => $result['list'],
+            ],
         ], REST_Controller::HTTP_OK);
     }
 
@@ -52,9 +57,13 @@ class Blog extends Api
         $result = $this->blog_model->get_by_id($id);
 
         $this->response([
-            'ret' => SUCCESS,
+            'ret' => REST_Controller::HTTP_OK,
             'msg' => '',
-            'data' => $result,
+            'data' => [
+                'code' => SUCCESS,
+                'message' => '',
+                'info' => $result,
+            ],
         ], REST_Controller::HTTP_OK);
     }
 
@@ -65,7 +74,7 @@ class Blog extends Api
         $result = $this->blog_model->update_blog($input, $where); // 成功返回true
 
         $this->response([
-            'ret' => SUCCESS,
+            'ret' => REST_Controller::HTTP_OK,
             'msg' => '',
             'data' => [
                 'code' => SUCCESS,
